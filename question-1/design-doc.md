@@ -119,12 +119,12 @@ Break the implementation into modular packages, then integrate in the applicatio
 
 ```mermaid
 flowchart TD
-    P1[@station-alpha/transport] --> P3[@station-alpha/timeseries]
-    P2[@station-alpha/protocol] --> P1
-    P3 --> P4[@station-alpha/chart-engine]
-    P4 --> P5[@station-alpha/chart-react]
-    P6[@station-alpha/perf-tools] --> P4
-    P7[@station-alpha/demo-app] --> P5
+   P1["transport package"] --> P3["timeseries package"]
+   P2["protocol package"] --> P1
+   P3 --> P4["chart engine package"]
+   P4 --> P5["chart react package"]
+   P6["perf tools package"] --> P4
+   P7["demo app package"] --> P5
     P7 --> P1
 ```
 
