@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { HighPerformanceChartProps, PricePoint } from "./chartTypes";
-import { createProgram, makeGridVertices, makeLineVertices } from "./gl";
+import { createProgram } from "../gl";
+import { makeGridVertices, makeLineVertices } from "./geometry";
 import { FRAG_SHADER, VERT_SHADER } from "./shaders";
 
 type GLResources = {
