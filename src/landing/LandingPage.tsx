@@ -183,7 +183,7 @@ export function LandingPage(): JSX.Element {
         label: "Q1",
         content: q1Doc,
         previewPoints: [
-          "WebGL chart with 24 fps incremental streaming",
+          "WebGL chart with 60+ fps incremental streaming",
           "Multi-resolution rollups: sub-second, minute & hourly buckets",
           "Backpressure-safe ingestion with overflow protection",
         ],
@@ -686,7 +686,7 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
       <div className="hero-stats" aria-hidden="true">
         <div className="hero-stat">
           <div className="hero-stat-value">
-            <span className="hero-stat-number" data-target="24">0</span>
+            <span className="hero-stat-number" data-target="60">0</span>
             <span className="hero-stat-unit">fps</span>
           </div>
           <span className="hero-stat-label">Stream rate</span>
@@ -749,6 +749,80 @@ const SummarySection = memo(function SummarySection(): JSX.Element {
   );
 });
 
+type TickRow = { price: number; tickDelta: number; id: number };
+let _tickRowId = 0;
+
+/** Renders a horizontal strip of rolling tick rows.
+ *  Each new row is tweened in from above (slide + flash) by GSAP.
+ */
+const TickFeedPanel = memo(function TickFeedPanel({
+  latest,
+}: {
+  latest: number;
+}): JSX.Element {
+  const [ticks, setTicks] = useState<TickRow[]>([]);
+  const listRef = useRef<HTMLUListElement>(null);
+  const prevRef = useRef<number>(0);
+
+  // Prepend a new row whenever the streamed price changes
+  useEffect(() => {
+    if (latest === 0) return;
+    const tickDelta = prevRef.current !== 0 ? latest - prevRef.current : 0;
+    prevRef.current = latest;
+    setTicks((prev) => [
+      { price: latest, tickDelta, id: _tickRowId++ },
+      ...prev.slice(0, 7),
+    ]);
+  }, [latest]);
+
+  // GSAP: slide-in + background flash on newest row
+  useEffect(() => {
+    if (!listRef.current || ticks.length === 0) return;
+    const row = listRef.current.children[0] as HTMLElement | undefined;
+    if (!row) return;
+    const isUp = ticks[0].tickDelta >= 0;
+    gsap.killTweensOf(row);
+    gsap.from(row, {
+      y: -22,
+      autoAlpha: 0,
+      duration: 0.32,
+      ease: "power3.out",
+    });
+    gsap.fromTo(
+      row,
+      {
+        background: isUp
+          ? "rgba(54,249,218,0.2)"
+          : "rgba(255,95,123,0.2)",
+      },
+      { background: "transparent", duration: 1, ease: "power2.out" },
+    );
+  }, [ticks]);
+
+  return (
+    <div className="tick-feed">
+      <p className="tick-feed-label">Tick stream</p>
+      <ul className="tick-feed-list" ref={listRef}>
+        {ticks.map((t, i) => (
+          <li
+            key={t.id}
+            className={`tick-row ${t.tickDelta >= 0 ? "up" : "down"}`}
+            style={{ opacity: Math.max(0.18, 1 - i * 0.13) }}
+          >
+            <span className="tick-price">{t.price.toFixed(2)}</span>
+            <span className="tick-arrow">
+              {t.tickDelta >= 0 ? "▲" : "▼"}
+            </span>
+            <span className="tick-delta">
+              {Math.abs(t.tickDelta).toFixed(2)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
+
 const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
   const chartRef = useRef<HighPerformanceChartHandle | null>(null);
   const ticker = useFakeTickerStream({
@@ -800,6 +874,7 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
           <p className="meta-value">{ticker.sampleCount} ticks</p>
         </div>
       </div>
+      <TickFeedPanel latest={ticker.latest} />
       <div className="chart-wrap">
         <HighPerformanceChart
           ref={chartRef}

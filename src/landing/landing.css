@@ -574,6 +574,76 @@ body {
   perspective: 1000px;
 }
 
+/* ── Tick feed: rolling per-tick price strip with GSAP tween reveals */
+.tick-feed {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.tick-feed-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.tick-feed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.tick-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: "Space Grotesk", monospace;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tick-price {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.tick-arrow {
+  font-size: 9px;
+}
+
+.tick-row.up .tick-arrow,
+.tick-row.up .tick-delta {
+  color: var(--accent);
+}
+
+.tick-row.down .tick-arrow,
+.tick-row.down .tick-delta {
+  color: var(--danger);
+}
+
+.tick-delta {
+  font-size: 10px;
+}
+
 /* ── Scroll timeline: active section label highlight */
 .scroll-timeline-label.is-active {
   color: rgba(54, 249, 218, 0.92);
