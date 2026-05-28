@@ -98,6 +98,7 @@ body {
   text-transform: uppercase;
   color: rgba(198, 223, 248, 0.72);
   white-space: nowrap;
+  transition: color 200ms ease;
 }
 
 .hero,
@@ -258,7 +259,7 @@ body {
 
 .question-title-section {
   margin-top: 34px;
-  min-height: min(58vh, 520px);
+  min-height: 90vh;
   display: grid;
   place-items: center;
 }
@@ -571,6 +572,137 @@ body {
 /* ── 3D perspective context for answer card-flip entrance */
 .question-answer-section {
   perspective: 1000px;
+}
+
+/* ── Scroll timeline: active section label highlight */
+.scroll-timeline-label.is-active {
+  color: rgba(54, 249, 218, 0.92);
+  font-weight: 700;
+}
+
+/* ── Hero stats: live proof-of-capability metrics */
+.hero-stats {
+  display: flex;
+  gap: clamp(20px, 4vw, 48px);
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-stat-value {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.hero-stat-number {
+  font-family: "Syne", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.hero-stat-unit {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.hero-stat-label {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Chart section: header row with live badge */
+.chart-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.chart-section-header .section-headline {
+  margin-bottom: 0;
+}
+
+.chart-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(54, 249, 218, 0.3);
+  background: rgba(54, 249, 218, 0.07);
+}
+
+.chart-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.7);
+    opacity: 0.45;
+  }
+}
+
+/* ── Question title: scrollytelling preview bullets */
+.qt-preview-list {
+  list-style: none;
+  padding: 0;
+  margin: clamp(14px, 2.5vw, 22px) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qt-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(0.88rem, 1.5vw, 1rem);
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+.qt-preview::before {
+  content: "";
+  flex-shrink: 0;
+  width: 20px;
+  height: 1.5px;
+  background: linear-gradient(to right, var(--accent), transparent 80%);
+  border-radius: 999px;
+}
+
+#q2-title .qt-preview::before {
+  background: linear-gradient(to left, var(--accent-2), transparent 80%);
 }
 
 /* ── Accessibility: honour reduced-motion preference */

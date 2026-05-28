@@ -26,6 +26,7 @@ type DocSection = {
   subtitle: string;
   label: string;
   content: string;
+  previewPoints?: string[];
 };
 
 const CHART_BACKGROUND: [number, number, number, number] = [
@@ -181,6 +182,11 @@ export function LandingPage(): JSX.Element {
           "Rendering strategy, throughput planning, and system trade-offs",
         label: "Q1",
         content: q1Doc,
+        previewPoints: [
+          "WebGL chart with 24 fps incremental streaming",
+          "Multi-resolution rollups: sub-second, minute & hourly buckets",
+          "Backpressure-safe ingestion with overflow protection",
+        ],
       },
       {
         id: "q2",
@@ -188,6 +194,11 @@ export function LandingPage(): JSX.Element {
         subtitle: "Trade replay feature with integrity-first architecture",
         label: "Q2",
         content: q2Doc,
+        previewPoints: [
+          "Checkpointed replay engine with deterministic event ordering",
+          "Idempotent event sourcing preserves complete audit trail",
+          "Frontend subscribes to replay stream without code changes",
+        ],
       },
       {
         id: "consolidated-calc",
@@ -299,6 +310,28 @@ export function LandingPage(): JSX.Element {
         delay: 0.7,
         ease: "back.out(1.7)",
       });
+      // Hero stats: entrance + count-up tickers
+      gsap.from(".hero-stat", {
+        autoAlpha: 0,
+        y: 20,
+        stagger: 0.12,
+        duration: 0.7,
+        delay: 1.0,
+        ease: "power3.out",
+      });
+      gsap.utils.toArray<HTMLElement>(".hero-stat-number").forEach((el) => {
+        const target = parseInt(el.getAttribute("data-target") ?? "0", 10);
+        const counter = { val: 0 };
+        gsap.to(counter, {
+          val: target,
+          duration: 2,
+          delay: 1.1,
+          ease: "power2.out",
+          onUpdate() {
+            el.textContent = String(Math.round(counter.val));
+          },
+        });
+      });
       // Hero scroll-exit: parallax drift (scrollytelling)
       gsap.to(".hero", {
         y: -60,
@@ -391,40 +424,39 @@ export function LandingPage(): JSX.Element {
         },
       });
 
-      // ── Q1 title: per-element stagger reveals (teal accent section)
-      gsap.from("#q1-title .question-title-kicker", {
-        autoAlpha: 0,
-        y: 14,
-        duration: 0.7,
-        ease: "power3.out",
+      // ── Q1 title: PINNED scrollytelling — elements flow in left-to-right
+      //    Kicker → h2 clip-reveal → subtitle → preview bullets (from left)
+      const q1Pin = gsap.timeline({
         scrollTrigger: {
           trigger: "#q1-title",
-          start: "top 82%",
-          once: true,
+          start: "top top",
+          end: "+=560",
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.8,
         },
       });
-      gsap.from("#q1-title .clip-wrap > h2", {
-        y: "110%",
-        duration: 1,
-        ease: "power4.out",
-        scrollTrigger: {
-          trigger: "#q1-title",
-          start: "top 82%",
-          once: true,
-        },
-      });
-      gsap.from("#q1-title .question-title-panel > p:last-child", {
-        autoAlpha: 0,
-        y: 16,
-        duration: 0.7,
-        delay: 0.28,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: "#q1-title",
-          start: "top 82%",
-          once: true,
-        },
-      });
+      q1Pin
+        .from(
+          "#q1-title .question-title-kicker",
+          { autoAlpha: 0, x: -14, duration: 0.12 },
+          0,
+        )
+        .from(
+          "#q1-title .clip-wrap > h2",
+          { y: "110%", duration: 0.22 },
+          0.08,
+        )
+        .from(
+          "#q1-title .qt-subtitle",
+          { autoAlpha: 0, y: 12, duration: 0.12 },
+          0.28,
+        )
+        .from(
+          "#q1-title .qt-preview",
+          { autoAlpha: 0, x: -32, duration: 0.16, stagger: 0.18 },
+          0.44,
+        );
 
       // ── Q1 answer: 3D card-flip entrance
       gsap.from("#q1 .answer-panel", {
@@ -441,19 +473,39 @@ export function LandingPage(): JSX.Element {
         },
       });
 
-      // ── Q2 title: cinematic horizontal entry from right + blur (contrasts Q1 per-element reveals)
-      gsap.from("#q2-title .question-title-panel", {
-        x: 80,
-        autoAlpha: 0,
-        filter: "blur(6px)",
-        duration: 1,
-        ease: "expo.out",
+      // ── Q2 title: PINNED scrollytelling — elements flow in right-to-left (contrast to Q1)
+      //    Kicker from right → h2 clip-reveal from right → subtitle from above → bullets from right
+      const q2Pin = gsap.timeline({
         scrollTrigger: {
           trigger: "#q2-title",
-          start: "top 80%",
-          once: true,
+          start: "top top",
+          end: "+=560",
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.8,
         },
       });
+      q2Pin
+        .from(
+          "#q2-title .question-title-kicker",
+          { autoAlpha: 0, x: 14, duration: 0.12 },
+          0,
+        )
+        .from(
+          "#q2-title .clip-wrap > h2",
+          { x: "110%", duration: 0.22 },
+          0.08,
+        )
+        .from(
+          "#q2-title .qt-subtitle",
+          { autoAlpha: 0, y: -12, duration: 0.12 },
+          0.28,
+        )
+        .from(
+          "#q2-title .qt-preview",
+          { autoAlpha: 0, x: 32, duration: 0.16, stagger: 0.18 },
+          0.44,
+        );
 
       // ── Q2 answer: scale-fade with blur clearance
       gsap.from("#q2 .answer-panel", {
@@ -606,7 +658,7 @@ export function LandingPage(): JSX.Element {
 
 const HeroSection = memo(function HeroSection(): JSX.Element {
   return (
-    <header className="hero sequence-section">
+    <header id="hero" className="hero sequence-section">
       <p className="hero-kicker">Station Alpha • Screening Task</p>
       <h1 className="hero-title">
         <span className="clip-wrap">
@@ -630,6 +682,29 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
         <a className="hero-action hero-action-secondary" href="#q2-title">
           Question 2
         </a>
+      </div>
+      <div className="hero-stats" aria-hidden="true">
+        <div className="hero-stat">
+          <div className="hero-stat-value">
+            <span className="hero-stat-number" data-target="24">0</span>
+            <span className="hero-stat-unit">fps</span>
+          </div>
+          <span className="hero-stat-label">Stream rate</span>
+        </div>
+        <div className="hero-stat">
+          <div className="hero-stat-value">
+            <span className="hero-stat-number" data-target="3600">0</span>
+            <span className="hero-stat-unit">ticks</span>
+          </div>
+          <span className="hero-stat-label">Rolling window</span>
+        </div>
+        <div className="hero-stat">
+          <div className="hero-stat-value">
+            <span className="hero-stat-number" data-target="16">0</span>
+            <span className="hero-stat-unit">ms</span>
+          </div>
+          <span className="hero-stat-label">Frame budget</span>
+        </div>
       </div>
     </header>
   );
@@ -700,7 +775,13 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
 
   return (
     <section className="hero-glass chart-zone sequence-section">
-      <div className="section-headline">Chart Demo</div>
+      <div className="chart-section-header">
+        <div className="section-headline">Chart Demo</div>
+        <div className="chart-live-badge" aria-label="Live data stream">
+          <span className="chart-live-dot" aria-hidden="true" />
+          Live
+        </div>
+      </div>
       <div className="chart-meta">
         <div>
           <p className="meta-label">Symbol</p>
@@ -752,7 +833,16 @@ const QuestionTitleSection = memo(function QuestionTitleSection({
         <div className="clip-wrap">
           <h2>{doc.title}</h2>
         </div>
-        <p>{doc.subtitle}</p>
+        <p className="qt-subtitle">{doc.subtitle}</p>
+        {!compact && doc.previewPoints && (
+          <ul className="qt-preview-list" aria-hidden="true">
+            {doc.previewPoints.map((point, i) => (
+              <li key={i} className="qt-preview">
+                {point}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );
