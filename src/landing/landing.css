@@ -177,7 +177,11 @@ body {
 }
 
 .hero-action:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.hero-action-primary:hover {
+  box-shadow: 0 14px 32px rgba(54, 249, 218, 0.45);
 }
 
 .hero-action-primary {
@@ -220,6 +224,13 @@ body {
   border-radius: 14px;
   background: rgba(8, 16, 31, 0.78);
   padding: 14px;
+  transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+}
+
+.summary-rect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(0, 7, 18, 0.5), 0 0 24px rgba(54, 249, 218, 0.1);
+  border-color: rgba(149, 228, 255, 0.42);
 }
 
 .summary-rect h3 {
@@ -241,7 +252,8 @@ body {
   border: 1px solid var(--line);
   background: linear-gradient(125deg, rgba(16, 30, 56, 0.82), rgba(9, 15, 30, 0.7));
   box-shadow: 0 22px 70px rgba(0, 7, 18, 0.64);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px) saturate(180%);
+  will-change: transform;
 }
 
 .question-title-section {
@@ -363,6 +375,12 @@ body {
   background: var(--card);
   padding: clamp(18px, 4vw, 34px);
   box-shadow: 0 24px 60px rgba(3, 8, 20, 0.52);
+  transition: box-shadow 280ms ease, border-color 280ms ease;
+}
+
+.doc-card:hover {
+  box-shadow: 0 28px 70px rgba(3, 8, 20, 0.62), 0 0 30px rgba(95, 180, 255, 0.07);
+  border-color: rgba(151, 210, 252, 0.38);
 }
 
 .doc-card h2 {
@@ -453,5 +471,115 @@ body {
 
   .chart-meta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cursor {
+    display: none;
+  }
+}
+
+/* ── Clip-wrap: overflow-hidden shell for slide-up text reveal animations */
+.clip-wrap {
+  display: block;
+  overflow: hidden;
+}
+
+/* ── Noise grain overlay (AWWWARDS texture depth) */
+.landing::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  pointer-events: none;
+  z-index: 1;
+  animation: grain 8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%,
+  100% { transform: translate(0, 0); }
+  10%  { transform: translate(-5%, -10%); }
+  20%  { transform: translate(-15%, 5%); }
+  30%  { transform: translate(7%, -25%); }
+  40%  { transform: translate(-5%, 25%); }
+  50%  { transform: translate(-15%, 10%); }
+  60%  { transform: translate(15%, 0%); }
+  70%  { transform: translate(0%, 15%); }
+  80%  { transform: translate(3%, 35%); }
+  90%  { transform: translate(-10%, 10%); }
+}
+
+/* ── Custom cursor (desktop only, hide on mobile via media query above) */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(54, 249, 218, 0.65);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition:
+    opacity 300ms ease,
+    width 180ms ease,
+    height 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+  mix-blend-mode: screen;
+}
+
+.cursor.cursor--active {
+  opacity: 1;
+}
+
+.cursor.cursor--hover {
+  width: 56px;
+  height: 56px;
+  background: rgba(54, 249, 218, 0.06);
+  border-color: rgba(54, 249, 218, 0.95);
+}
+
+/* ── Q1 title: teal accent panel (distinct from Q2) */
+#q1-title .question-title-panel {
+  background:
+    linear-gradient(135deg, rgba(12, 22, 42, 0.9), rgba(8, 14, 28, 0.86)),
+    radial-gradient(circle at 90% 0%, rgba(54, 249, 218, 0.18), transparent 60%);
+  box-shadow: 0 24px 64px rgba(2, 8, 22, 0.58), 0 0 80px rgba(54, 249, 218, 0.07);
+}
+
+#q1-title .question-title-kicker {
+  color: var(--accent);
+}
+
+/* ── Q2 title: blue accent panel (distinct from Q1) */
+#q2-title .question-title-panel {
+  background:
+    linear-gradient(135deg, rgba(12, 22, 42, 0.9), rgba(8, 14, 28, 0.86)),
+    radial-gradient(circle at 10% 100%, rgba(95, 180, 255, 0.18), transparent 60%);
+  box-shadow: 0 24px 64px rgba(2, 8, 22, 0.58), 0 0 80px rgba(95, 180, 255, 0.07);
+}
+
+#q2-title .question-title-kicker {
+  color: var(--accent-2);
+}
+
+/* ── 3D perspective context for answer card-flip entrance */
+.question-answer-section {
+  perspective: 1000px;
+}
+
+/* ── Accessibility: honour reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

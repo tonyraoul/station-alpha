@@ -219,15 +219,21 @@ export function LandingPage(): JSX.Element {
       `${q1Section.label} Answer`,
       `${q2Section.label} Title`,
       `${q2Section.label} Answer`,
-      ...remainingSections.flatMap((doc) => [`${doc.label} Title`, `${doc.label} Answer`]),
+      ...remainingSections.flatMap((doc) => [
+        `${doc.label} Title`,
+        `${doc.label} Answer`,
+      ]),
     ],
     [q1Section, q2Section, remainingSections],
   );
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      const sections = gsap.utils.toArray<HTMLElement>(".sequence-section");
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
 
+      // Scroll progress rail (always active)
       gsap.fromTo(
         ".scroll-timeline-progress",
         { scaleY: 0 },
@@ -243,96 +249,9 @@ export function LandingPage(): JSX.Element {
         },
       );
 
-      sections.forEach((section, index) => {
-        if (index === 0) {
-          return;
-        }
+      if (reducedMotion) return;
 
-        const prevSection = sections[index - 1];
-
-        gsap.fromTo(
-          section,
-          { y: 56, autoAlpha: 0.38 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 88%",
-              end: "top 38%",
-              scrub: 0.55,
-            },
-          },
-        );
-
-        gsap.fromTo(
-          prevSection,
-          { y: 0, autoAlpha: 1, scale: 1 },
-          {
-            y: -18,
-            autoAlpha: 0.76,
-            scale: 0.99,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 88%",
-              end: "top 38%",
-              scrub: 0.55,
-            },
-          },
-        );
-      });
-
-      gsap.utils
-        .toArray<HTMLElement>(".sequence-section")
-        .forEach((section, index) => {
-          gsap.from(section, {
-            opacity: 0,
-            y: 56,
-            duration: 0.85,
-            ease: "power3.out",
-            delay: Math.min(index * 0.03, 0.18),
-            scrollTrigger: {
-              trigger: section,
-              start: "top 86%",
-              once: true,
-            },
-          });
-        });
-
-      gsap.from(".hero-kicker", {
-        opacity: 0,
-        y: 28,
-        duration: 0.8,
-        ease: "power3.out",
-      });
-
-      gsap.from(".hero-title-line", {
-        opacity: 0,
-        y: 55,
-        duration: 1,
-        stagger: 0.14,
-        ease: "power4.out",
-      });
-
-      gsap.from(".hero-subtitle", {
-        opacity: 0,
-        y: 24,
-        duration: 0.8,
-        delay: 0.35,
-        ease: "power3.out",
-      });
-
-      gsap.from(".hero-glass", {
-        opacity: 0,
-        y: 40,
-        scale: 0.97,
-        duration: 0.95,
-        delay: 0.2,
-        ease: "power3.out",
-      });
-
+      // ── Orb ambient float
       gsap.to(".orb-a", {
         y: -30,
         x: 18,
@@ -341,7 +260,6 @@ export function LandingPage(): JSX.Element {
         yoyo: true,
         ease: "sine.inOut",
       });
-
       gsap.to(".orb-b", {
         y: 25,
         x: -22,
@@ -351,66 +269,119 @@ export function LandingPage(): JSX.Element {
         ease: "sine.inOut",
       });
 
-      gsap.utils
-        .toArray<HTMLElement>(".summary-rect")
-        .forEach((card, index) => {
-          gsap.from(card, {
-            opacity: 0,
-            y: 40,
-            scale: 0.96,
-            duration: 0.7,
-            delay: index * 0.09,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: ".summary-grid",
-              start: "top 82%",
-              once: true,
-            },
-          });
-        });
+      // ── Hero: bold minimalism — clip-wrap slide-up reveals
+      gsap.from(".hero-kicker", {
+        autoAlpha: 0,
+        y: 18,
+        duration: 0.7,
+        ease: "power3.out",
+      });
+      gsap.from(".hero-title-line", {
+        y: "110%",
+        duration: 1.1,
+        stagger: 0.15,
+        ease: "power4.out",
+        delay: 0.1,
+      });
+      gsap.from(".hero-subtitle", {
+        autoAlpha: 0,
+        y: 22,
+        duration: 0.8,
+        delay: 0.55,
+        ease: "power3.out",
+      });
+      gsap.from(".hero-action", {
+        autoAlpha: 0,
+        y: 18,
+        scale: 0.9,
+        duration: 0.6,
+        stagger: 0.1,
+        delay: 0.7,
+        ease: "back.out(1.7)",
+      });
+      // Hero scroll-exit: parallax drift (scrollytelling)
+      gsap.to(".hero", {
+        y: -60,
+        autoAlpha: 0.35,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero",
+          start: "bottom 80%",
+          end: "bottom 10%",
+          scrub: 1,
+        },
+      });
 
-      gsap.utils
-        .toArray<HTMLElement>(".question-title-panel")
-        .forEach((titlePanel) => {
-          gsap.fromTo(
-            titlePanel,
-            { autoAlpha: 0, scale: 0.92, y: 36 },
-            {
-              autoAlpha: 1,
-              scale: 1,
-              y: 0,
-              duration: 0.85,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: titlePanel,
-                start: "top 84%",
-                once: true,
-              },
-            },
-          );
+      // ── Summary: staggered batch from alternating directions
+      gsap.from(".summary-section .section-headline", {
+        autoAlpha: 0,
+        x: -24,
+        duration: 0.6,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".summary-section",
+          start: "top 82%",
+          once: true,
+        },
+      });
+      gsap.from(".summary-title", {
+        y: "110%",
+        duration: 0.9,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: ".summary-section",
+          start: "top 82%",
+          once: true,
+        },
+      });
+      const summaryRects = gsap.utils.toArray<HTMLElement>(".summary-rect");
+      const summaryFrom: Array<{ x?: number; y?: number; autoAlpha: number }> =
+        [
+          { x: -64, autoAlpha: 0 },
+          { y: 60, autoAlpha: 0 },
+          { x: 64, autoAlpha: 0 },
+        ];
+      summaryRects.forEach((card, i) => {
+        gsap.from(card, {
+          ...(summaryFrom[i] ?? { y: 40, autoAlpha: 0 }),
+          duration: 0.85,
+          ease: "power3.out",
+          delay: i * 0.1,
+          scrollTrigger: {
+            trigger: ".summary-grid",
+            start: "top 82%",
+            once: true,
+          },
         });
+      });
 
-      gsap.utils
-        .toArray<HTMLElement>(".answer-panel")
-        .forEach((panel, index) => {
-          gsap.from(panel, {
-            opacity: 0,
-            y: 64,
-            rotateX: 6,
-            transformOrigin: "top center",
-            duration: 0.95,
-            delay: Math.min(index * 0.03, 0.12),
-            ease: "power4.out",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 85%",
-              once: true,
-            },
-          });
-        });
-
+      // ── Chart: meta rotateX stagger + clip-path wipe reveal
+      gsap.from(".chart-meta > div", {
+        y: 28,
+        autoAlpha: 0,
+        rotateX: 30,
+        transformOrigin: "top center",
+        stagger: 0.07,
+        duration: 0.65,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".chart-meta",
+          start: "top 86%",
+          once: true,
+        },
+      });
+      gsap.from(".chart-wrap", {
+        clipPath: "inset(100% 0 0 0)",
+        duration: 1.2,
+        ease: "expo.out",
+        scrollTrigger: {
+          trigger: ".chart-zone",
+          start: "top 80%",
+          once: true,
+        },
+      });
       gsap.to(".chart-wrap", {
-        yPercent: -7,
+        yPercent: -6,
         ease: "none",
         scrollTrigger: {
           trigger: ".chart-zone",
@@ -419,13 +390,184 @@ export function LandingPage(): JSX.Element {
           scrub: 1,
         },
       });
+
+      // ── Q1 title: per-element stagger reveals (teal accent section)
+      gsap.from("#q1-title .question-title-kicker", {
+        autoAlpha: 0,
+        y: 14,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#q1-title",
+          start: "top 82%",
+          once: true,
+        },
+      });
+      gsap.from("#q1-title .clip-wrap > h2", {
+        y: "110%",
+        duration: 1,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: "#q1-title",
+          start: "top 82%",
+          once: true,
+        },
+      });
+      gsap.from("#q1-title .question-title-panel > p:last-child", {
+        autoAlpha: 0,
+        y: 16,
+        duration: 0.7,
+        delay: 0.28,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#q1-title",
+          start: "top 82%",
+          once: true,
+        },
+      });
+
+      // ── Q1 answer: 3D card-flip entrance
+      gsap.from("#q1 .answer-panel", {
+        y: 70,
+        autoAlpha: 0,
+        rotateX: 6,
+        transformOrigin: "top center",
+        duration: 0.95,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: "#q1",
+          start: "top 85%",
+          once: true,
+        },
+      });
+
+      // ── Q2 title: cinematic horizontal entry from right + blur (contrasts Q1 per-element reveals)
+      gsap.from("#q2-title .question-title-panel", {
+        x: 80,
+        autoAlpha: 0,
+        filter: "blur(6px)",
+        duration: 1,
+        ease: "expo.out",
+        scrollTrigger: {
+          trigger: "#q2-title",
+          start: "top 80%",
+          once: true,
+        },
+      });
+
+      // ── Q2 answer: scale-fade with blur clearance
+      gsap.from("#q2 .answer-panel", {
+        y: 60,
+        autoAlpha: 0,
+        scale: 0.97,
+        filter: "blur(4px)",
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#q2",
+          start: "top 85%",
+          once: true,
+        },
+      });
+
+      // ── Remaining compact sections: batch reveal
+      gsap.utils
+        .toArray<HTMLElement>(
+          ".question-title-section.is-compact .question-title-panel",
+        )
+        .forEach((panel) => {
+          gsap.from(panel, {
+            y: 44,
+            autoAlpha: 0,
+            scale: 0.97,
+            duration: 0.75,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 84%",
+              once: true,
+            },
+          });
+        });
+      gsap.utils
+        .toArray<HTMLElement>(
+          ".question-answer-section.is-compact .answer-panel",
+        )
+        .forEach((panel) => {
+          gsap.from(panel, {
+            y: 60,
+            autoAlpha: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 85%",
+              once: true,
+            },
+          });
+        });
     }, rootRef);
 
     return () => ctx.revert();
   }, []);
 
+  // Custom cursor: smooth lerp follower (desktop/mouse pointer only)
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    const cursor = document.querySelector<HTMLElement>(".cursor");
+    if (!cursor) return;
+
+    let mx = 0,
+      my = 0,
+      cx = 0,
+      cy = 0;
+    let rafId = 0;
+    let started = false;
+
+    const onMove = (e: MouseEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!started) {
+        cx = mx;
+        cy = my;
+        started = true;
+        cursor.classList.add("cursor--active");
+      }
+    };
+
+    const tick = () => {
+      cx += (mx - cx) * 0.1;
+      cy += (my - cy) * 0.1;
+      cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      rafId = requestAnimationFrame(tick);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    rafId = requestAnimationFrame(tick);
+
+    const hoverEls = document.querySelectorAll<HTMLElement>(
+      "a, button, .summary-rect, .doc-card",
+    );
+    const enter = () => cursor.classList.add("cursor--hover");
+    const leave = () => cursor.classList.remove("cursor--hover");
+    hoverEls.forEach((el) => {
+      el.addEventListener("mouseenter", enter);
+      el.addEventListener("mouseleave", leave);
+    });
+
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(rafId);
+      hoverEls.forEach((el) => {
+        el.removeEventListener("mouseenter", enter);
+        el.removeEventListener("mouseleave", leave);
+      });
+    };
+  }, []);
+
   return (
     <div className="landing" ref={rootRef}>
+      <div className="cursor" aria-hidden="true" />
       <div className="orb orb-a" />
       <div className="orb orb-b" />
 
@@ -467,9 +609,15 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
     <header className="hero sequence-section">
       <p className="hero-kicker">Station Alpha • Screening Task</p>
       <h1 className="hero-title">
-        <span className="hero-title-line">Realtime Market</span>
-        <span className="hero-title-line">Infrastructure</span>
-        <span className="hero-title-line">Crafted for Replay</span>
+        <span className="clip-wrap">
+          <span className="hero-title-line">Realtime Market</span>
+        </span>
+        <span className="clip-wrap">
+          <span className="hero-title-line">Infrastructure</span>
+        </span>
+        <span className="clip-wrap">
+          <span className="hero-title-line">Crafted for Replay</span>
+        </span>
       </h1>
       <p className="hero-subtitle">
         Live WebGL charting, integrity-first replay architecture, and
@@ -494,9 +642,11 @@ const SummarySection = memo(function SummarySection(): JSX.Element {
       aria-labelledby="summary-title"
     >
       <div className="section-headline">Summary</div>
-      <h2 id="summary-title" className="summary-title">
-        What you are about to explore
-      </h2>
+      <div className="clip-wrap">
+        <h2 id="summary-title" className="summary-title">
+          What you are about to explore
+        </h2>
+      </div>
       <div className="summary-grid">
         <article className="summary-rect">
           <h3>Backend architecture</h3>
@@ -599,7 +749,9 @@ const QuestionTitleSection = memo(function QuestionTitleSection({
     >
       <div className="question-title-panel">
         <p className="question-title-kicker">{doc.label}</p>
-        <h2>{doc.title}</h2>
+        <div className="clip-wrap">
+          <h2>{doc.title}</h2>
+        </div>
         <p>{doc.subtitle}</p>
       </div>
     </section>
