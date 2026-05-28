@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { HighPerformanceChartProps, PricePoint } from "./chartTypes";
+import { createProgram, makeGridVertices, makeLineVertices } from "./gl";
+import { FRAG_SHADER, VERT_SHADER } from "./shaders";
 
 type GLResources = {
   gl: WebGLRenderingContext;
@@ -9,119 +11,11 @@ type GLResources = {
   buffer: WebGLBuffer;
 };
 
-const VERT_SHADER = `
-attribute vec2 a_position;
-void main() {
-  gl_Position = vec4(a_position, 0.0, 1.0);
-}
-`;
-
-const FRAG_SHADER = `
-precision mediump float;
-uniform vec4 u_color;
-void main() {
-  gl_FragColor = u_color;
-}
-`;
-
-function compileShader(
-  gl: WebGLRenderingContext,
-  type: number,
-  source: string,
-): WebGLShader {
-  const shader = gl.createShader(type);
-  if (!shader) {
-    throw new Error("Unable to allocate shader");
-  }
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const error = gl.getShaderInfoLog(shader) ?? "Unknown shader compile error";
-    gl.deleteShader(shader);
-    throw new Error(error);
-  }
-  return shader;
-}
-
-function createProgram(
-  gl: WebGLRenderingContext,
-  vsSource: string,
-  fsSource: string,
-): WebGLProgram {
-  const vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
-  const program = gl.createProgram();
-  if (!program) {
-    throw new Error("Unable to create WebGL program");
-  }
-
-  gl.attachShader(program, vs);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-
-  gl.deleteShader(vs);
-  gl.deleteShader(fs);
-
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const error = gl.getProgramInfoLog(program) ?? "Unknown program link error";
-    gl.deleteProgram(program);
-    throw new Error(error);
-  }
-
-  return program;
-}
-
 function clampSamples(samples: PricePoint[], maxPoints: number): PricePoint[] {
   if (samples.length <= maxPoints) {
     return samples;
   }
   return samples.slice(samples.length - maxPoints);
-}
-
-function makeLineVertices(samples: number[]): Float32Array {
-  const count = samples.length;
-  if (count < 2) {
-    return new Float32Array(0);
-  }
-
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-  for (const s of samples) {
-    min = Math.min(min, s);
-    max = Math.max(max, s);
-  }
-
-  const spread = Math.max(max - min, 0.00001);
-  const out = new Float32Array(count * 2);
-
-  for (let i = 0; i < count; i += 1) {
-    const x = (i / (count - 1)) * 2 - 1;
-    const normalizedY = (samples[i] - min) / spread;
-    const y = normalizedY * 1.8 - 0.9;
-
-    out[i * 2] = x;
-    out[i * 2 + 1] = y;
-  }
-
-  return out;
-}
-
-function makeGridVertices(rows: number, cols: number): Float32Array {
-  const verts: number[] = [];
-
-  for (let r = 0; r <= rows; r += 1) {
-    const y = -1 + (r / rows) * 2;
-    verts.push(-1, y, 1, y);
-  }
-
-  for (let c = 0; c <= cols; c += 1) {
-    const x = -1 + (c / cols) * 2;
-    verts.push(x, -1, x, 1);
-  }
-
-  return new Float32Array(verts);
 }
 
 export function HighPerformanceChart({
