@@ -210,9 +210,80 @@ export function LandingPage(): JSX.Element {
   const q1Section = docs[0];
   const q2Section = docs[1];
   const remainingSections = docs.slice(2);
+  const timelineLabels = useMemo(
+    () => [
+      "Hero",
+      "Summary",
+      "Chart Demo",
+      `${q1Section.label} Title`,
+      `${q1Section.label} Answer`,
+      `${q2Section.label} Title`,
+      `${q2Section.label} Answer`,
+      ...remainingSections.flatMap((doc) => [`${doc.label} Title`, `${doc.label} Answer`]),
+    ],
+    [q1Section, q2Section, remainingSections],
+  );
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      const sections = gsap.utils.toArray<HTMLElement>(".sequence-section");
+
+      gsap.fromTo(
+        ".scroll-timeline-progress",
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".landing",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.45,
+          },
+        },
+      );
+
+      sections.forEach((section, index) => {
+        if (index === 0) {
+          return;
+        }
+
+        const prevSection = sections[index - 1];
+
+        gsap.fromTo(
+          section,
+          { y: 56, autoAlpha: 0.38 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 88%",
+              end: "top 38%",
+              scrub: 0.55,
+            },
+          },
+        );
+
+        gsap.fromTo(
+          prevSection,
+          { y: 0, autoAlpha: 1, scale: 1 },
+          {
+            y: -18,
+            autoAlpha: 0.76,
+            scale: 0.99,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 88%",
+              end: "top 38%",
+              scrub: 0.55,
+            },
+          },
+        );
+      });
+
       gsap.utils
         .toArray<HTMLElement>(".sequence-section")
         .forEach((section, index) => {
@@ -323,20 +394,20 @@ export function LandingPage(): JSX.Element {
         .toArray<HTMLElement>(".answer-panel")
         .forEach((panel, index) => {
           gsap.from(panel, {
-          opacity: 0,
-          y: 64,
-          rotateX: 6,
-          transformOrigin: "top center",
-          duration: 0.95,
-          delay: Math.min(index * 0.03, 0.12),
-          ease: "power4.out",
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 85%",
-            once: true,
-          },
+            opacity: 0,
+            y: 64,
+            rotateX: 6,
+            transformOrigin: "top center",
+            duration: 0.95,
+            delay: Math.min(index * 0.03, 0.12),
+            ease: "power4.out",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 85%",
+              once: true,
+            },
+          });
         });
-      });
 
       gsap.to(".chart-wrap", {
         yPercent: -7,
@@ -357,6 +428,19 @@ export function LandingPage(): JSX.Element {
     <div className="landing" ref={rootRef}>
       <div className="orb orb-a" />
       <div className="orb orb-b" />
+
+      <aside className="scroll-timeline" aria-hidden="true">
+        <div className="scroll-timeline-track">
+          <div className="scroll-timeline-progress" />
+        </div>
+        <div className="scroll-timeline-labels">
+          {timelineLabels.map((label) => (
+            <span key={label} className="scroll-timeline-label">
+              {label}
+            </span>
+          ))}
+        </div>
+      </aside>
 
       <HeroSection />
       <SummarySection />
@@ -405,7 +489,10 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
 
 const SummarySection = memo(function SummarySection(): JSX.Element {
   return (
-    <section className="summary-section sequence-section" aria-labelledby="summary-title">
+    <section
+      className="summary-section sequence-section"
+      aria-labelledby="summary-title"
+    >
       <div className="section-headline">Summary</div>
       <h2 id="summary-title" className="summary-title">
         What you are about to explore

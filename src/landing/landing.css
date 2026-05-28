@@ -57,6 +57,49 @@ body {
   background: radial-gradient(circle at 40% 35%, rgba(54, 249, 218, 0.8), rgba(54, 249, 218, 0));
 }
 
+.scroll-timeline {
+  position: fixed;
+  top: 50%;
+  right: clamp(10px, 1.8vw, 24px);
+  transform: translateY(-50%);
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 10px auto;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.scroll-timeline-track {
+  width: 3px;
+  height: min(62vh, 520px);
+  border-radius: 999px;
+  background: rgba(151, 210, 252, 0.2);
+  overflow: hidden;
+}
+
+.scroll-timeline-progress {
+  width: 100%;
+  height: 100%;
+  transform-origin: top center;
+  background: linear-gradient(to bottom, #2bfcd4, #6ea7ff, #ffb347);
+}
+
+.scroll-timeline-labels {
+  height: min(62vh, 520px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.scroll-timeline-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(198, 223, 248, 0.72);
+  white-space: nowrap;
+}
+
 .hero,
 .hero-glass,
 .docs-grid {
@@ -394,6 +437,10 @@ body {
 @media (max-width: 920px) {
   .landing {
     padding-top: 34px;
+  }
+
+  .scroll-timeline {
+    display: none;
   }
 
   .hero-actions {
