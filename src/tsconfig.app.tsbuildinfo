@@ -1,0 +1,1 @@
+{"root":["./vite.config.ts","./chart/charttypes.ts","./chart/index.ts","./demos/index.ts","./demos/usefaketickerstream.ts","./app.tsx","./main.tsx","./chart/highperformancechart.tsx","./demos/harnesspage.tsx"],"version":"5.9.3"}

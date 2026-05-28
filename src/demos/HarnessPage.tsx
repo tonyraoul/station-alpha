@@ -1,5 +1,4 @@
-import React from "react";
-import { HighPerformanceChart } from "./HighPerformanceChart";
+import { HighPerformanceChart } from "../chart/HighPerformanceChart";
 import { useFakeTickerStream } from "./useFakeTickerStream";
 import "./harness.css";
 
@@ -13,16 +12,17 @@ export function ChartHarnessPage(): JSX.Element {
 
   const trendText =
     ticker.delta >= 0 ? `+${ticker.delta.toFixed(4)}` : ticker.delta.toFixed(4);
+  const trendClass = ticker.delta >= 0 ? "trend-up" : "trend-down";
 
   return (
     <div className="fake-ticker-page">
       <section className="fake-ticker-shell">
         <header className="fake-ticker-header">
-          <h1 className="fake-ticker-title">Fake Ticker Harness</h1>
+          <h1 className="fake-ticker-title">Neon Arena Ticker</h1>
           <div className="fake-ticker-meta">
             <span>{ticker.symbol}</span>
             <span>{ticker.latest.toFixed(4)}</span>
-            <span>{trendText}</span>
+            <span className={trendClass}>{trendText}</span>
           </div>
         </header>
 
@@ -83,6 +83,9 @@ export function ChartHarnessPage(): JSX.Element {
             height={460}
             className="fake-ticker-canvas"
             maxPoints={2500}
+            backgroundColor={[0.04, 0.07, 0.12, 1]}
+            gridColor={[0.15, 0.24, 0.37, 1]}
+            lineColor={[0.29, 0.94, 1, 1]}
           />
         </div>
 

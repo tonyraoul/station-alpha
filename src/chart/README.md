@@ -20,16 +20,20 @@ This chart module is designed for high-frequency market-style visualization.
 ## Files
 
 - `HighPerformanceChart.tsx`: WebGL chart component.
-- `useFakeTickerStream.ts`: fake streaming data source for testing.
-- `HarnessPage.tsx`: themed harness page for visual and interaction testing.
-- `harness.css`: fake ticker visual theme.
 - `chartTypes.ts`: shared types.
 - `index.ts`: exports.
+
+Demo and harness files now live in `src/demos`:
+
+- `src/demos/useFakeTickerStream.ts`: fake streaming data source for testing.
+- `src/demos/HarnessPage.tsx`: themed harness page for visual and interaction testing.
+- `src/demos/harness.css`: harness visual theme.
 
 ## Usage
 
 ```tsx
-import { HighPerformanceChart, ChartHarnessPage } from "./src/chart";
+import { HighPerformanceChart } from "./src/chart";
+import { ChartHarnessPage } from "./src/demos";
 ```
 
 Use `ChartHarnessPage` for quick manual testing. It includes start, stop, reset, volatility, and speed controls.

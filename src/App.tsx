@@ -1,5 +1,4 @@
-import React from "react";
-import { ChartHarnessPage } from "./chart";
+import { ChartHarnessPage } from "./demos";
 
 export function App(): JSX.Element {
   return <ChartHarnessPage />;
