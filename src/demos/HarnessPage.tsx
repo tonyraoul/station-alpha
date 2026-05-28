@@ -33,6 +33,57 @@ type TickerControlsProps = {
   onMaxSamplesChange: (value: number) => void;
 };
 
+type TickerHeaderProps = {
+  symbol: string;
+  latest: number;
+  trendText: string;
+  trendClass: string;
+};
+
+type TickerFooterProps = {
+  sampleCount: number;
+  maxSamples: number;
+  running: boolean;
+};
+
+const TickerHeader = memo(function TickerHeader({
+  symbol,
+  latest,
+  trendText,
+  trendClass,
+}: TickerHeaderProps): JSX.Element {
+  return (
+    <header className="fake-ticker-header">
+      <h1 className="fake-ticker-title">Neon Arena Ticker</h1>
+      <div className="fake-ticker-meta">
+        <span>{symbol}</span>
+        <span>{latest.toFixed(4)}</span>
+        <span className={trendClass}>{trendText}</span>
+      </div>
+    </header>
+  );
+});
+
+const TickerFooter = memo(function TickerFooter({
+  sampleCount,
+  maxSamples,
+  running,
+}: TickerFooterProps): JSX.Element {
+  return (
+    <footer className="fake-ticker-footer">
+      <div className="fake-ticker-panel">
+        Samples: {sampleCount} / {maxSamples}
+      </div>
+      <div className="fake-ticker-panel">
+        Engine: React + TypeScript + WebGL
+      </div>
+      <div className="fake-ticker-panel">
+        Status: {running ? "LIVE" : "PAUSED"}
+      </div>
+    </footer>
+  );
+});
+
 const TickerControls = memo(function TickerControls({
   running,
   volatility,
@@ -120,7 +171,9 @@ const TickerControls = memo(function TickerControls({
           onChange={(e) => onMaxSamplesChange(Number(e.target.value))}
         />
         {maxSamples.toFixed(0)}
-        {isPending ? <span className="fake-ticker-pending">syncing</span> : null}
+        {isPending ? (
+          <span className="fake-ticker-pending">syncing</span>
+        ) : null}
       </label>
     </div>
   );
@@ -177,14 +230,12 @@ export function ChartHarnessPage(): JSX.Element {
   return (
     <div className="fake-ticker-page">
       <section className="fake-ticker-shell">
-        <header className="fake-ticker-header">
-          <h1 className="fake-ticker-title">Neon Arena Ticker</h1>
-          <div className="fake-ticker-meta">
-            <span>{ticker.symbol}</span>
-            <span>{deferredLatest.toFixed(4)}</span>
-            <span className={trendClass}>{trendText}</span>
-          </div>
-        </header>
+        <TickerHeader
+          symbol={ticker.symbol}
+          latest={deferredLatest}
+          trendText={trendText}
+          trendClass={trendClass}
+        />
 
         <TickerControls
           running={ticker.running}
@@ -215,17 +266,11 @@ export function ChartHarnessPage(): JSX.Element {
           />
         </div>
 
-        <footer className="fake-ticker-footer">
-          <div className="fake-ticker-panel">
-            Samples: {deferredSampleCount} / {ticker.maxSamples}
-          </div>
-          <div className="fake-ticker-panel">
-            Engine: React + TypeScript + WebGL
-          </div>
-          <div className="fake-ticker-panel">
-            Status: {ticker.running ? "LIVE" : "PAUSED"}
-          </div>
-        </footer>
+        <TickerFooter
+          sampleCount={deferredSampleCount}
+          maxSamples={ticker.maxSamples}
+          running={ticker.running}
+        />
       </section>
     </div>
   );
