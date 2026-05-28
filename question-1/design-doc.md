@@ -1,5 +1,11 @@
 ## What To Address
 
+### Assumptions
+
+1. Real-time price updates can burst beyond 20 updates per second during volatile periods.
+2. The same chart engine must support both desktop and mobile browsers.
+3. Accessibility and UI controls remain DOM-based while data plotting is GPU-based.
+
 ### Architecture Overview
 
 ```mermaid
@@ -61,6 +67,14 @@ This gives a strong balance:
 1. GPU-friendly rendering for heavy data.
 2. Accessible controls in DOM.
 3. Lower CPU overhead compared with continuous SVG path regeneration.
+
+### Cross-Device Support (Desktop and Mobile)
+
+1. Use the same rendering engine with adaptive quality tiers based on device capability.
+2. Reduce point density and animation detail on low-power devices while preserving interaction quality.
+3. Use touch-optimized gestures for pan and zoom on mobile with larger hit targets for overlays.
+4. Keep UI overlays lightweight and responsive by separating chart rendering from interaction components.
+5. Use runtime performance sampling to dynamically tune frame budget and decimation strategy per device.
 
 ### What strategies would you use to optimize rendering performance?
 

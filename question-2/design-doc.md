@@ -14,6 +14,13 @@ Guiding decisions:
 3. Build replay from trade boundaries plus historical ticker windows.
 4. Use a thin BFF for response composition and policy enforcement.
 
+### Assumptions
+
+1. Every trade has reliable entry_time and expiry_time recorded in the trade domain.
+2. Ticker timestamps are source-generated and ordered per symbol with sequence validation.
+3. Internal staff can access broader replay history than end users, based on role policies.
+4. Replay access must be fully auditable for support and compliance workflows.
+
 ## a) Data Capture Strategy
 
 ### What to capture
@@ -84,6 +91,15 @@ Why this works:
 3. Replay BFF API:
    GET /bff/replays/{trade_id}/bootstrap
    GET /bff/replays/{trade_id}/ticks?cursor=...&limit=...
+
+### Access paths (End Users vs Internal Staff)
+
+1. End users:
+   scoped replay to their own trades, bounded by customer-facing retention rules.
+2. Internal staff:
+   broader replay access across accounts/desks, gated by role-based permissions and audit logging.
+3. BFF policy layer:
+   enforces actor scope, masks sensitive fields where required, and records replay access events.
 
 ### Data-layer transport
 
@@ -180,6 +196,7 @@ flowchart LR
     TAPI --> BFF
 
     BFF --> C[Web or Mobile Client]
+   BFF --> S[Staff Portal]
 ```
 
 ## Overall Infrastructure Diagram
@@ -229,8 +246,10 @@ flowchart LR
    subgraph Clients
       WEB[Web Client]
       MOBILE[Mobile Client]
+      STAFF[Staff Portal]
       BFF2 --> WEB
       BFF2 --> MOBILE
+      BFF2 --> STAFF
    end
 
    subgraph Archive
