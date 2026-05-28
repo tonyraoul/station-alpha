@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import type {
   HighPerformanceChartHandle,
   HighPerformanceChartProps,
@@ -24,7 +30,7 @@ type GLResources = {
   lineBuffer: WebGLBuffer;
 };
 
-export const HighPerformanceChart = forwardRef<
+const HighPerformanceChartInner = forwardRef<
   HighPerformanceChartHandle,
   HighPerformanceChartProps
 >(function HighPerformanceChart(
@@ -617,3 +623,44 @@ export const HighPerformanceChart = forwardRef<
     />
   );
 });
+
+function isSameRgba(
+  left: [number, number, number, number] | undefined,
+  right: [number, number, number, number] | undefined,
+): boolean {
+  if (left === right) {
+    return true;
+  }
+
+  if (!left || !right) {
+    return false;
+  }
+
+  return (
+    left[0] === right[0] &&
+    left[1] === right[1] &&
+    left[2] === right[2] &&
+    left[3] === right[3]
+  );
+}
+
+function areChartPropsEqual(
+  prev: Readonly<HighPerformanceChartProps>,
+  next: Readonly<HighPerformanceChartProps>,
+): boolean {
+  return (
+    prev.initialSamples === next.initialSamples &&
+    prev.width === next.width &&
+    prev.height === next.height &&
+    prev.className === next.className &&
+    prev.maxPoints === next.maxPoints &&
+    isSameRgba(prev.backgroundColor, next.backgroundColor) &&
+    isSameRgba(prev.lineColor, next.lineColor) &&
+    isSameRgba(prev.gridColor, next.gridColor)
+  );
+}
+
+export const HighPerformanceChart = memo(
+  HighPerformanceChartInner,
+  areChartPropsEqual,
+);

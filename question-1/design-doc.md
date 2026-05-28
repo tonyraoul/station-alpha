@@ -84,6 +84,8 @@ This gives a strong balance:
 4. Decimate or aggregate points based on zoom level and pixel density.
 5. Keep heavy chart drawing in canvas/WebGL and keep DOM overlays minimal.
 6. Use worker threads for preprocessing (downsampling, bucketing, compression).
+7. Memoize React component and/or use React compiler.
+8. Isolate components that update a lot into smaller variants.
 
 ### How would you manage memory in long-running sessions?
 

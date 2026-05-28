@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+    startTransition,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 type UseFakeTickerStreamOptions = {
     symbol?: string;
@@ -130,17 +137,46 @@ export function useFakeTickerStream({
             } else {
                 setRecentPrices(emitted.subarray(0, pointsToEmit));
             }
-            setLatest(latestRef.current);
-            setDelta(Math.round((latestRef.current - beforeLast) * 10000) / 10000);
-            setSampleCount((prev) => Math.min(maxSamples, prev + pointsToEmit));
+
+            // Keep chart ingestion eager, but schedule UI metrics as lower-priority updates.
+            startTransition(() => {
+                setLatest(latestRef.current);
+                setDelta(Math.round((latestRef.current - beforeLast) * 10000) / 10000);
+                setSampleCount((prev) => Math.min(maxSamples, prev + pointsToEmit));
+            });
         }, intervalMs);
 
         return () => window.clearInterval(id);
     }, [running, maxSamples, volatility, speed, updatesPerSecondState]);
 
     useEffect(() => {
-        setSampleCount((prev) => Math.min(prev, maxSamples));
+        startTransition(() => {
+            setSampleCount((prev) => Math.min(prev, maxSamples));
+        });
     }, [maxSamples]);
+
+    const start = useCallback(() => {
+        setRunning(true);
+    }, []);
+
+    const stop = useCallback(() => {
+        setRunning(false);
+    }, []);
+
+    const reset = useCallback(() => {
+        latestRef.current = seedPrice;
+        prngRef.current = createPrng(initialSeed);
+        driftRef.current = 0;
+        tickRef.current = 0;
+        setRecentPrices(new Float32Array([seedPrice]));
+        setResetVersion((prev) => prev + 1);
+
+        startTransition(() => {
+            setSampleCount(1);
+            setLatest(seedPrice);
+            setDelta(0);
+        });
+    }, [initialSeed, seedPrice]);
 
     const api = useMemo<FakeTickerState>(
         () => ({
@@ -155,19 +191,9 @@ export function useFakeTickerStream({
             updatesPerSecond: updatesPerSecondState,
             speed,
             running,
-            start: () => setRunning(true),
-            stop: () => setRunning(false),
-            reset: () => {
-                latestRef.current = seedPrice;
-                prngRef.current = createPrng(initialSeed);
-                driftRef.current = 0;
-                tickRef.current = 0;
-                setSampleCount(1);
-                setRecentPrices(new Float32Array([seedPrice]));
-                setLatest(seedPrice);
-                setDelta(0);
-                setResetVersion((prev) => prev + 1);
-            },
+            start,
+            stop,
+            reset,
             setMaxSamples,
             setVolatility,
             setUpdatesPerSecond,
@@ -185,7 +211,9 @@ export function useFakeTickerStream({
             updatesPerSecondState,
             speed,
             running,
-            seedPrice,
+            start,
+            stop,
+            reset,
         ],
     );
 
