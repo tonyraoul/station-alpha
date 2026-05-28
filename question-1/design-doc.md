@@ -113,6 +113,8 @@ This gives a strong balance:
 4. Why this balance works:
    It minimizes delivery risk early while preserving a migration path as load and product scope grow.
 
+---
+
 ## Package-Oriented Delivery Plan
 
 Break the implementation into modular packages, then integrate in the application shell.
