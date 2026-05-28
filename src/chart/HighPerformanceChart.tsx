@@ -264,7 +264,7 @@ export const HighPerformanceChart = forwardRef<
     refreshExtremaFromDeques();
   }
 
-  function replaceAllValues(values: number[]): void {
+  function replaceAllValues(values: ArrayLike<number>): void {
     const cap = lineCapacityRef.current;
     const start = Math.max(0, values.length - cap);
     const data = lineDataRef.current;
@@ -345,6 +345,16 @@ export const HighPerformanceChart = forwardRef<
     requestRender();
   }, [initialSamples]);
 
+  function addPriceValues(values: ArrayLike<number>): void {
+    if (values.length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < values.length; i += 1) {
+      appendOne(values[i]);
+    }
+  }
+
   useImperativeHandle(
     ref,
     () => ({
@@ -358,8 +368,16 @@ export const HighPerformanceChart = forwardRef<
         }
         requestRender();
       },
+      addPrices: (pricesToAdd: ArrayLike<number>) => {
+        addPriceValues(pricesToAdd);
+        requestRender();
+      },
       replaceAll: (allSamples: PricePoint[]) => {
         replaceAllValues(allSamples.map((p) => p.price));
+        requestRender();
+      },
+      replaceAllPrices: (allPrices: ArrayLike<number>) => {
+        replaceAllValues(allPrices);
         requestRender();
       },
       reset: () => {

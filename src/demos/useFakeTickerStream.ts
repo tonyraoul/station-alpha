@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PricePoint } from "../chart/chartTypes";
 
 type UseFakeTickerStreamOptions = {
     symbol?: string;
@@ -31,8 +30,8 @@ function createPrng(seed: number): () => number {
 
 export type FakeTickerState = {
     symbol: string;
-    samples: PricePoint[];
-    recentSamples: PricePoint[];
+    sampleCount: number;
+    recentPrices: Float32Array;
     resetVersion: number;
     maxSamples: number;
     latest: number;
@@ -56,18 +55,18 @@ export function useFakeTickerStream({
     maxPoints = 2400,
     seedPrice = 100,
 }: UseFakeTickerStreamOptions = {}): FakeTickerState {
-    const [samples, setSamples] = useState<PricePoint[]>([
-        { ts: Date.now(), price: seedPrice },
-    ]);
-    const [recentSamples, setRecentSamples] = useState<PricePoint[]>([
-        { ts: Date.now(), price: seedPrice },
-    ]);
+    const [sampleCount, setSampleCount] = useState(1);
+    const [recentPrices, setRecentPrices] = useState<Float32Array>(
+        () => new Float32Array([seedPrice]),
+    );
     const [resetVersion, setResetVersion] = useState(0);
     const [running, setRunning] = useState(true);
     const [maxSamples, setMaxSamples] = useState(maxPoints);
     const [volatility, setVolatility] = useState(0.6);
     const [updatesPerSecondState, setUpdatesPerSecond] = useState(updatesPerSecond);
     const [speed, setSpeed] = useState(1);
+    const [latest, setLatest] = useState(seedPrice);
+    const [delta, setDelta] = useState(0);
     const initialSeed = useMemo(() => createSeed(symbol, seedPrice), [symbol, seedPrice]);
     const latestRef = useRef(seedPrice);
     const prngRef = useRef<() => number>(() => 0.5);
@@ -88,62 +87,48 @@ export function useFakeTickerStream({
         const intervalMs = Math.max(8, Math.floor(1000 / updatesPerSecondState));
 
         const id = window.setInterval(() => {
-            setSamples((prev) => {
-                const pointsToEmit = Math.max(1, Math.floor(speed));
-                const baseTime = Date.now();
-                const emitted: PricePoint[] = [];
+            const pointsToEmit = Math.max(1, Math.floor(speed));
+            const emitted = new Float32Array(pointsToEmit);
 
-                for (let i = 0; i < pointsToEmit; i += 1) {
-                    const tick = tickRef.current;
-                    tickRef.current += 1;
+            let beforeLast = latestRef.current;
+            for (let i = 0; i < pointsToEmit; i += 1) {
+                const tick = tickRef.current;
+                tickRef.current += 1;
 
-                    const trend =
-                        Math.sin(tick / 18) * 0.03 + Math.cos(tick / 90) * 0.015;
+                const trend =
+                    Math.sin(tick / 18) * 0.03 + Math.cos(tick / 90) * 0.015;
 
-                    const randSigned = prngRef.current() * 2 - 1;
-                    driftRef.current = driftRef.current * 0.82 + randSigned * 0.18;
-                    const micro = (prngRef.current() + prngRef.current() - 1) * 0.2;
-                    const noise = (driftRef.current + micro) * volatility * 0.35;
+                const randSigned = prngRef.current() * 2 - 1;
+                driftRef.current = driftRef.current * 0.82 + randSigned * 0.18;
+                const micro = (prngRef.current() + prngRef.current() - 1) * 0.2;
+                const noise = (driftRef.current + micro) * volatility * 0.35;
 
-                    const next = Math.max(0.1, latestRef.current + trend + noise);
+                const next = Math.max(0.1, latestRef.current + trend + noise);
+                const rounded = Math.round(next * 10000) / 10000;
 
-                    latestRef.current = next;
-                    emitted.push({
-                        ts: baseTime + i,
-                        price: Number(next.toFixed(4)),
-                    });
-                }
+                beforeLast = latestRef.current;
+                latestRef.current = rounded;
+                emitted[i] = rounded;
+            }
 
-                const nextSet = [...prev, ...emitted];
-                setRecentSamples(emitted);
-                if (nextSet.length <= maxSamples) {
-                    return nextSet;
-                }
-                return nextSet.slice(nextSet.length - maxSamples);
-            });
+            setRecentPrices(emitted);
+            setLatest(latestRef.current);
+            setDelta(Math.round((latestRef.current - beforeLast) * 10000) / 10000);
+            setSampleCount((prev) => Math.min(maxSamples, prev + pointsToEmit));
         }, intervalMs);
 
         return () => window.clearInterval(id);
     }, [running, maxSamples, volatility, speed, updatesPerSecondState]);
 
     useEffect(() => {
-        setSamples((prev) => {
-            if (prev.length <= maxSamples) {
-                return prev;
-            }
-            return prev.slice(prev.length - maxSamples);
-        });
+        setSampleCount((prev) => Math.min(prev, maxSamples));
     }, [maxSamples]);
-
-    const latest = samples.length > 0 ? samples[samples.length - 1].price : seedPrice;
-    const prev = samples.length > 1 ? samples[samples.length - 2].price : latest;
-    const delta = Number((latest - prev).toFixed(4));
 
     const api = useMemo<FakeTickerState>(
         () => ({
             symbol,
-            samples,
-            recentSamples,
+            sampleCount,
+            recentPrices,
             resetVersion,
             maxSamples,
             latest,
@@ -159,9 +144,10 @@ export function useFakeTickerStream({
                 prngRef.current = createPrng(initialSeed);
                 driftRef.current = 0;
                 tickRef.current = 0;
-                const seedPoint = { ts: Date.now(), price: seedPrice };
-                setSamples([seedPoint]);
-                setRecentSamples([seedPoint]);
+                setSampleCount(1);
+                setRecentPrices(new Float32Array([seedPrice]));
+                setLatest(seedPrice);
+                setDelta(0);
                 setResetVersion((prev) => prev + 1);
             },
             setMaxSamples,
@@ -171,8 +157,8 @@ export function useFakeTickerStream({
         }),
         [
             symbol,
-            samples,
-            recentSamples,
+            sampleCount,
+            recentPrices,
             resetVersion,
             maxSamples,
             latest,

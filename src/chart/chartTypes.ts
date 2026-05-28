@@ -5,7 +5,9 @@ export type PricePoint = {
 
 export type HighPerformanceChartHandle = {
     addSamples: (samples: PricePoint[]) => void;
+    addPrices: (prices: ArrayLike<number>) => void;
     replaceAll: (samples: PricePoint[]) => void;
+    replaceAllPrices: (prices: ArrayLike<number>) => void;
     reset: () => void;
 };
 

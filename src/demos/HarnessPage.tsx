@@ -23,12 +23,12 @@ export function ChartHarnessPage(): JSX.Element {
   }, [ticker.resetVersion]);
 
   useEffect(() => {
-    if (ticker.recentSamples.length === 0) {
+    if (ticker.recentPrices.length === 0) {
       return;
     }
 
-    chartRef.current?.addSamples(ticker.recentSamples);
-  }, [ticker.recentSamples]);
+    chartRef.current?.addPrices(ticker.recentPrices);
+  }, [ticker.recentPrices]);
 
   return (
     <div className="fake-ticker-page">
@@ -135,7 +135,7 @@ export function ChartHarnessPage(): JSX.Element {
 
         <footer className="fake-ticker-footer">
           <div className="fake-ticker-panel">
-            Samples: {ticker.samples.length} / {ticker.maxSamples}
+            Samples: {ticker.sampleCount} / {ticker.maxSamples}
           </div>
           <div className="fake-ticker-panel">
             Engine: React + TypeScript + WebGL
