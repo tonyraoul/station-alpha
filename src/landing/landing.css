@@ -574,6 +574,83 @@ body {
   perspective: 1000px;
 }
 
+/* ── Chart architecture section */
+.chart-arch-section {
+  padding: clamp(64px, 10vh, 120px) 0;
+}
+
+.chart-arch-header {
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.chart-arch-title {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5.5vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+
+.chart-arch-sub {
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.chart-arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 22vw, 280px), 1fr));
+  gap: 2px;
+}
+
+.chart-arch-pillar {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: clamp(24px, 3vw, 40px) clamp(20px, 2.5vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 250ms ease, background 250ms ease;
+  will-change: transform;
+}
+
+.chart-arch-pillar:hover {
+  border-color: rgba(54, 249, 218, 0.5);
+  background: rgba(54, 249, 218, 0.04);
+}
+
+.cap-glyph {
+  display: block;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--accent);
+  will-change: transform;
+}
+
+.cap-label {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.cap-body {
+  font-size: clamp(0.82rem, 1.2vw, 0.94rem);
+  color: var(--ink-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
 /* ── Name 3D section: animated identity reveal */
 .name-3d-section {
   display: flex;

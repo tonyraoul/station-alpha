@@ -487,6 +487,44 @@ export function LandingPage(): JSX.Element {
         },
       });
 
+      // ── Chart arch: bold pillar reveals
+      gsap.from(".chart-arch-title", {
+        y: "110%",
+        duration: 0.9,
+        ease: "power4.out",
+        scrollTrigger: { trigger: ".chart-arch-section", start: "top 80%", once: true },
+      });
+      gsap.from(".chart-arch-sub", {
+        autoAlpha: 0,
+        y: 16,
+        duration: 0.6,
+        delay: 0.3,
+        ease: "power3.out",
+        scrollTrigger: { trigger: ".chart-arch-section", start: "top 80%", once: true },
+      });
+      gsap.utils.toArray<HTMLElement>(".chart-arch-pillar").forEach((el, i) => {
+        // card: slam in from below with slight 3-D tilt
+        gsap.from(el, {
+          y: 80,
+          rotateX: 18,
+          autoAlpha: 0,
+          transformOrigin: "top center",
+          duration: 0.75,
+          delay: i * 0.1,
+          ease: "back.out(1.4)",
+          scrollTrigger: { trigger: ".chart-arch-grid", start: "top 82%", once: true },
+        });
+        // glyph: scale-punch after card arrives
+        gsap.from(el.querySelector(".cap-glyph"), {
+          scale: 0,
+          autoAlpha: 0,
+          duration: 0.5,
+          delay: i * 0.1 + 0.3,
+          ease: "back.out(2.5)",
+          scrollTrigger: { trigger: ".chart-arch-grid", start: "top 82%", once: true },
+        });
+      });
+
       // ── Q1 title: PINNED scrollytelling — elements flow in left-to-right
       //    Kicker → h2 clip-reveal → subtitle → preview bullets (from left)
       const q1Pin = gsap.timeline({
@@ -706,6 +744,7 @@ export function LandingPage(): JSX.Element {
       <Name3DSection />
       <SummarySection />
       <LiveChartSection />
+      <ChartArchSection />
 
       <QuestionTitleSection doc={q1Section} />
       <QuestionAnswerSection doc={q1Section} />
@@ -835,12 +874,56 @@ const SummarySection = memo(function SummarySection(): JSX.Element {
   );
 });
 
+type ChartPillar = { glyph: string; label: string; body: string };
+
+const CHART_PILLARS: ChartPillar[] = [
+  {
+    glyph: "GL",
+    label: "WebGL — not SVG",
+    body: "A raw WebGL context owns the canvas. The GPU rasterises every frame directly from a Float32Array — zero DOM overhead, zero SVG layout.",
+  },
+  {
+    glyph: "⊕",
+    label: "Append-only ring buffer",
+    body: "Prices are written into a fixed-capacity circular Float32Array. The write head wraps around in-place; no allocation, no copy, no splice ever runs.",
+  },
+  {
+    glyph: "Δ",
+    label: "Dirty-range uploads",
+    body: "Only the bytes that changed are sent to the GPU via glBufferSubData. A pair of tracked dirty ranges merges overlapping writes before each frame.",
+  },
+  {
+    glyph: "rAF",
+    label: "Single rAF loop",
+    body: "One requestAnimationFrame per render. Subsequent addPrices calls within the same frame coalesce — the draw call fires once per vsync, never twice.",
+  },
+];
+
+const ChartArchSection = memo(function ChartArchSection(): JSX.Element {
+  return (
+    <section className="chart-arch-section sequence-section" aria-labelledby="chart-arch-title">
+      <div className="chart-arch-header">
+        <div className="clip-wrap">
+          <h2 id="chart-arch-title" className="chart-arch-title">How the chart is built</h2>
+        </div>
+        <p className="chart-arch-sub">No clones. No SVG. Append-only.</p>
+      </div>
+      <div className="chart-arch-grid">
+        {CHART_PILLARS.map((p, i) => (
+          <article key={i} className="chart-arch-pillar">
+            <span className="cap-glyph" aria-hidden="true">{p.glyph}</span>
+            <h3 className="cap-label">{p.label}</h3>
+            <p className="cap-body">{p.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+});
+
 type TickRow = { price: number; tickDelta: number; id: number };
 let _tickRowId = 0;
 
-/** Renders a horizontal strip of rolling tick rows.
- *  Each new row is tweened in from above (slide + flash) by GSAP.
- */
 const TickFeedPanel = memo(function TickFeedPanel({
   latest,
 }: {
