@@ -24,6 +24,7 @@ type DocSection = {
   id: string;
   title: string;
   subtitle: string;
+  label: string;
   content: string;
 };
 
@@ -136,44 +137,36 @@ function MermaidBlock({ chart }: { chart: string }): JSX.Element {
   );
 }
 
-const DocsDeck = memo(function DocsDeck({
-  docs,
+const MarkdownContent = memo(function MarkdownContent({
+  content,
 }: {
-  docs: DocSection[];
+  content: string;
 }): JSX.Element {
   return (
-    <section className="docs-grid">
-      {docs.map((doc) => (
-        <article key={doc.id} className="doc-card" id={doc.id}>
-          <h2>{doc.title}</h2>
-          <p className="doc-subtitle">{doc.subtitle}</p>
-          <div className="doc-content markdown-surface">
-            <ReactMarkdown
-              components={{
-                code(props) {
-                  const { className, children, ...rest } = props;
-                  const match = /language-(\w+)/.exec(className ?? "");
-                  const language = match?.[1];
-                  const source = String(children).replace(/\n$/, "");
+    <div className="doc-content markdown-surface">
+      <ReactMarkdown
+        components={{
+          code(props) {
+            const { className, children, ...rest } = props;
+            const match = /language-(\w+)/.exec(className ?? "");
+            const language = match?.[1];
+            const source = String(children).replace(/\n$/, "");
 
-                  if (language === "mermaid") {
-                    return <MermaidBlock chart={source} />;
-                  }
+            if (language === "mermaid") {
+              return <MermaidBlock chart={source} />;
+            }
 
-                  return (
-                    <code className={className} {...rest}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
-              {doc.content}
-            </ReactMarkdown>
-          </div>
-        </article>
-      ))}
-    </section>
+            return (
+              <code className={className} {...rest}>
+                {children}
+              </code>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 });
 
@@ -186,32 +179,57 @@ export function LandingPage(): JSX.Element {
         title: "Question 1 Answer",
         subtitle:
           "Rendering strategy, throughput planning, and system trade-offs",
+        label: "Q1",
         content: q1Doc,
       },
       {
         id: "q2",
         title: "Question 2 Answer",
         subtitle: "Trade replay feature with integrity-first architecture",
+        label: "Q2",
         content: q2Doc,
       },
       {
         id: "consolidated-calc",
         title: "Consolidation: Multi-Resolution Calculation",
         subtitle: "Rollup math, pipeline behavior, and recovery patterns",
+        label: "CALC",
         content: consolidatedCalc,
       },
       {
         id: "consolidated-services",
         title: "Consolidation: Service Interactions",
         subtitle: "Backend and frontend package interaction blueprints",
+        label: "FLOW",
         content: consolidatedService,
       },
     ],
     [],
   );
 
+  const q1Section = docs[0];
+  const q2Section = docs[1];
+  const remainingSections = docs.slice(2);
+
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      gsap.utils
+        .toArray<HTMLElement>(".sequence-section")
+        .forEach((section, index) => {
+          gsap.from(section, {
+            opacity: 0,
+            y: 56,
+            duration: 0.85,
+            ease: "power3.out",
+            delay: Math.min(index * 0.03, 0.18),
+            scrollTrigger: {
+              trigger: section,
+              start: "top 86%",
+              once: true,
+            },
+          });
+        });
+
       gsap.from(".hero-kicker", {
         opacity: 0,
         y: 28,
@@ -262,17 +280,58 @@ export function LandingPage(): JSX.Element {
         ease: "sine.inOut",
       });
 
-      gsap.utils.toArray<HTMLElement>(".doc-card").forEach((card, index) => {
-        gsap.from(card, {
+      gsap.utils
+        .toArray<HTMLElement>(".summary-rect")
+        .forEach((card, index) => {
+          gsap.from(card, {
+            opacity: 0,
+            y: 40,
+            scale: 0.96,
+            duration: 0.7,
+            delay: index * 0.09,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".summary-grid",
+              start: "top 82%",
+              once: true,
+            },
+          });
+        });
+
+      gsap.utils
+        .toArray<HTMLElement>(".question-title-panel")
+        .forEach((titlePanel) => {
+          gsap.fromTo(
+            titlePanel,
+            { autoAlpha: 0, scale: 0.92, y: 36 },
+            {
+              autoAlpha: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.85,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: titlePanel,
+                start: "top 84%",
+                once: true,
+              },
+            },
+          );
+        });
+
+      gsap.utils
+        .toArray<HTMLElement>(".answer-panel")
+        .forEach((panel, index) => {
+          gsap.from(panel, {
           opacity: 0,
-          y: 90,
+          y: 64,
           rotateX: 6,
           transformOrigin: "top center",
           duration: 0.95,
-          delay: index * 0.04,
+          delay: Math.min(index * 0.03, 0.12),
           ease: "power4.out",
           scrollTrigger: {
-            trigger: card,
+            trigger: panel,
             start: "top 85%",
             once: true,
           },
@@ -300,17 +359,28 @@ export function LandingPage(): JSX.Element {
       <div className="orb orb-b" />
 
       <HeroSection />
-
+      <SummarySection />
       <LiveChartSection />
 
-      <DocsDeck docs={docs} />
+      <QuestionTitleSection doc={q1Section} />
+      <QuestionAnswerSection doc={q1Section} />
+
+      <QuestionTitleSection doc={q2Section} />
+      <QuestionAnswerSection doc={q2Section} />
+
+      {remainingSections.map((doc) => (
+        <section key={doc.id} className="docs-grid sequence-section">
+          <QuestionTitleSection doc={doc} compact />
+          <QuestionAnswerSection doc={doc} compact />
+        </section>
+      ))}
     </div>
   );
 }
 
 const HeroSection = memo(function HeroSection(): JSX.Element {
   return (
-    <header className="hero">
+    <header className="hero sequence-section">
       <p className="hero-kicker">Station Alpha • Screening Task</p>
       <h1 className="hero-title">
         <span className="hero-title-line">Realtime Market</span>
@@ -321,7 +391,49 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
         Live WebGL charting, integrity-first replay architecture, and
         multi-resolution data strategy in one cinematic landing page.
       </p>
+      <div className="hero-actions">
+        <a className="hero-action hero-action-primary" href="#q1-title">
+          Question 1
+        </a>
+        <a className="hero-action hero-action-secondary" href="#q2-title">
+          Question 2
+        </a>
+      </div>
     </header>
+  );
+});
+
+const SummarySection = memo(function SummarySection(): JSX.Element {
+  return (
+    <section className="summary-section sequence-section" aria-labelledby="summary-title">
+      <div className="section-headline">Summary</div>
+      <h2 id="summary-title" className="summary-title">
+        What you are about to explore
+      </h2>
+      <div className="summary-grid">
+        <article className="summary-rect">
+          <h3>Backend architecture</h3>
+          <p>
+            Streaming ingestion, resilient processing, and replay-safe
+            persistence form the core service layer.
+          </p>
+        </article>
+        <article className="summary-rect">
+          <h3>Frontend architecture</h3>
+          <p>
+            React + GSAP sequencing, markdown-driven sections, and high-focus
+            content choreography.
+          </p>
+        </article>
+        <article className="summary-rect">
+          <h3>Demo chart component</h3>
+          <p>
+            A WebGL chart showcasing high-frequency updates, smooth rendering,
+            and incremental data streaming.
+          </p>
+        </article>
+      </div>
+    </section>
   );
 });
 
@@ -350,7 +462,8 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
   const deltaClass = ticker.delta >= 0 ? "up" : "down";
 
   return (
-    <section className="hero-glass chart-zone">
+    <section className="hero-glass chart-zone sequence-section">
+      <div className="section-headline">Chart Demo</div>
       <div className="chart-meta">
         <div>
           <p className="meta-label">Symbol</p>
@@ -381,6 +494,48 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
           lineColor={CHART_LINE}
         />
       </div>
+    </section>
+  );
+});
+
+const QuestionTitleSection = memo(function QuestionTitleSection({
+  doc,
+  compact = false,
+}: {
+  doc: DocSection;
+  compact?: boolean;
+}): JSX.Element {
+  return (
+    <section
+      id={`${doc.id}-title`}
+      className={`question-title-section sequence-section ${compact ? "is-compact" : ""}`.trim()}
+    >
+      <div className="question-title-panel">
+        <p className="question-title-kicker">{doc.label}</p>
+        <h2>{doc.title}</h2>
+        <p>{doc.subtitle}</p>
+      </div>
+    </section>
+  );
+});
+
+const QuestionAnswerSection = memo(function QuestionAnswerSection({
+  doc,
+  compact = false,
+}: {
+  doc: DocSection;
+  compact?: boolean;
+}): JSX.Element {
+  return (
+    <section
+      id={doc.id}
+      className={`question-answer-section sequence-section ${compact ? "is-compact" : ""}`.trim()}
+    >
+      <article className="doc-card answer-panel">
+        <h3>{doc.title}</h3>
+        <p className="doc-subtitle">{doc.subtitle}</p>
+        <MarkdownContent content={doc.content} />
+      </article>
     </section>
   );
 });
