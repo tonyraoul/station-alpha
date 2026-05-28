@@ -11,7 +11,8 @@ export function ChartHarnessPage(): JSX.Element {
     seedPrice: 100,
   });
 
-  const trendText = ticker.delta >= 0 ? `+${ticker.delta.toFixed(4)}` : ticker.delta.toFixed(4);
+  const trendText =
+    ticker.delta >= 0 ? `+${ticker.delta.toFixed(4)}` : ticker.delta.toFixed(4);
 
   return (
     <div className="fake-ticker-page">
@@ -26,13 +27,25 @@ export function ChartHarnessPage(): JSX.Element {
         </header>
 
         <div className="fake-ticker-toolbar">
-          <button type="button" className="fake-ticker-btn" onClick={ticker.start}>
+          <button
+            type="button"
+            className="fake-ticker-btn"
+            onClick={ticker.start}
+          >
             Start
           </button>
-          <button type="button" className="fake-ticker-btn" onClick={ticker.stop}>
+          <button
+            type="button"
+            className="fake-ticker-btn"
+            onClick={ticker.stop}
+          >
             Stop
           </button>
-          <button type="button" className="fake-ticker-btn" onClick={ticker.reset}>
+          <button
+            type="button"
+            className="fake-ticker-btn"
+            onClick={ticker.reset}
+          >
             Reset
           </button>
 
@@ -74,9 +87,15 @@ export function ChartHarnessPage(): JSX.Element {
         </div>
 
         <footer className="fake-ticker-footer">
-          <div className="fake-ticker-panel">Samples: {ticker.samples.length}</div>
-          <div className="fake-ticker-panel">Engine: React + TypeScript + WebGL</div>
-          <div className="fake-ticker-panel">Status: {ticker.running ? "LIVE" : "PAUSED"}</div>
+          <div className="fake-ticker-panel">
+            Samples: {ticker.samples.length}
+          </div>
+          <div className="fake-ticker-panel">
+            Engine: React + TypeScript + WebGL
+          </div>
+          <div className="fake-ticker-panel">
+            Status: {ticker.running ? "LIVE" : "PAUSED"}
+          </div>
         </footer>
       </section>
     </div>

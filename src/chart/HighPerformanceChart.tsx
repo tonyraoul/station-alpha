@@ -24,7 +24,11 @@ void main() {
 }
 `;
 
-function compileShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader {
+function compileShader(
+  gl: WebGLRenderingContext,
+  type: number,
+  source: string,
+): WebGLShader {
   const shader = gl.createShader(type);
   if (!shader) {
     throw new Error("Unable to allocate shader");
@@ -40,7 +44,11 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
   return shader;
 }
 
-function createProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram {
+function createProgram(
+  gl: WebGLRenderingContext,
+  vsSource: string,
+  fsSource: string,
+): WebGLProgram {
   const vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
   const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
@@ -205,7 +213,12 @@ export function HighPerformanceChart({
       const { gl, program, aPosition, uColor, buffer } = res;
 
       gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-      gl.clearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+      gl.clearColor(
+        backgroundColor[0],
+        backgroundColor[1],
+        backgroundColor[2],
+        backgroundColor[3],
+      );
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       gl.useProgram(program);
@@ -238,5 +251,12 @@ export function HighPerformanceChart({
     };
   }, [backgroundColor, gridColor, lineColor]);
 
-  return <canvas ref={canvasRef} width={width} height={height} className={className} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      width={width}
+      height={height}
+      className={className}
+    />
+  );
 }
