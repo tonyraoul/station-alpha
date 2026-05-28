@@ -239,6 +239,7 @@ export function LandingPage(): JSX.Element {
   );
 
   useLayoutEffect(() => {
+    let cleanupMouseRef: (() => void) | undefined;
     const ctx = gsap.context(() => {
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
@@ -387,6 +388,68 @@ export function LandingPage(): JSX.Element {
           },
         });
       });
+
+      // ── Name 3D: per-letter rotateX flip-in + idle tilt + mouse parallax
+      gsap.set(".name-3d", { perspective: 900 });
+      gsap.from(".letter-3d", {
+        rotateX: -90,
+        y: 60,
+        autoAlpha: 0,
+        transformOrigin: "50% 100%",
+        stagger: 0.07,
+        duration: 0.85,
+        ease: "back.out(1.5)",
+        scrollTrigger: {
+          trigger: ".name-3d-section",
+          start: "top 78%",
+          once: true,
+        },
+      });
+      // Idle breathe: gentle Y-axis sway
+      gsap.to(".name-3d", {
+        rotateY: 5,
+        duration: 3.5,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
+      // Mouse parallax tilt on the section
+      const name3dSection = rootRef.current?.querySelector(
+        ".name-3d-section",
+      ) as HTMLElement | null;
+      if (name3dSection) {
+        const onMouseMove = (e: MouseEvent) => {
+          const rect = name3dSection.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const rx = ((e.clientY - cy) / rect.height) * -16;
+          const ry = ((e.clientX - cx) / rect.width) * 16;
+          gsap.to(".name-3d", {
+            rotateX: rx,
+            rotateY: ry,
+            duration: 0.6,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+        };
+        const onMouseLeave = () => {
+          gsap.to(".name-3d", {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 1.2,
+            ease: "elastic.out(1, 0.5)",
+            overwrite: "auto",
+          });
+        };
+        name3dSection.addEventListener("mousemove", onMouseMove);
+        name3dSection.addEventListener("mouseleave", onMouseLeave);
+        // Store cleanup outside ctx to avoid TDZ (ctx is not yet assigned
+        // when this callback runs synchronously inside gsap.context())
+        cleanupMouseRef = () => {
+          name3dSection.removeEventListener("mousemove", onMouseMove);
+          name3dSection.removeEventListener("mouseleave", onMouseLeave);
+        };
+      }
 
       // ── Chart: meta rotateX stagger + clip-path wipe reveal
       gsap.from(".chart-meta > div", {
@@ -560,7 +623,10 @@ export function LandingPage(): JSX.Element {
         });
     }, rootRef);
 
-    return () => ctx.revert();
+    return () => {
+      cleanupMouseRef?.();
+      ctx.revert();
+    };
   }, []);
 
   // Custom cursor: smooth lerp follower (desktop/mouse pointer only)
@@ -637,6 +703,7 @@ export function LandingPage(): JSX.Element {
       </aside>
 
       <HeroSection />
+      <Name3DSection />
       <SummarySection />
       <LiveChartSection />
 
@@ -655,6 +722,25 @@ export function LandingPage(): JSX.Element {
     </div>
   );
 }
+
+const Name3DSection = memo(function Name3DSection(): JSX.Element {
+  const letters = "Antoine".split("");
+  return (
+    <section
+      className="name-3d-section sequence-section"
+      aria-label="Built by Antoine"
+    >
+      <p className="name-3d-label">Built by</p>
+      <div className="name-3d" aria-hidden="true">
+        {letters.map((char, i) => (
+          <span key={i} className="letter-3d">
+            {char}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+});
 
 const HeroSection = memo(function HeroSection(): JSX.Element {
   return (

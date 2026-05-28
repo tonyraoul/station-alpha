@@ -574,6 +574,66 @@ body {
   perspective: 1000px;
 }
 
+/* ── Name 3D section: animated identity reveal */
+.name-3d-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(60px, 10vh, 120px) 0;
+  min-height: 40vh;
+  text-align: center;
+  cursor: default;
+}
+
+.name-3d-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-muted);
+  margin: 0 0 24px;
+}
+
+.name-3d {
+  display: flex;
+  transform-style: preserve-3d;
+  will-change: transform;
+  gap: 0.02em;
+}
+
+.letter-3d {
+  display: inline-block;
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: clamp(5rem, 14vw, 11rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  transform-style: preserve-3d;
+  will-change: transform;
+  text-shadow:
+    1px 2px 0 rgba(54, 249, 218, 0.75),
+    2px 4px 0 rgba(54, 249, 218, 0.55),
+    3px 6px 0 rgba(54, 249, 218, 0.38),
+    4px 8px 0 rgba(54, 249, 218, 0.24),
+    5px 10px 0 rgba(54, 249, 218, 0.14),
+    6px 12px 0 rgba(54, 249, 218, 0.08),
+    8px 16px 28px rgba(0, 0, 0, 0.55);
+  transition: color 200ms ease;
+}
+
+.letter-3d:hover {
+  color: var(--accent);
+  text-shadow:
+    1px 2px 0 rgba(95, 180, 255, 0.75),
+    2px 4px 0 rgba(95, 180, 255, 0.55),
+    3px 6px 0 rgba(95, 180, 255, 0.38),
+    4px 8px 0 rgba(95, 180, 255, 0.24),
+    5px 10px 0 rgba(95, 180, 255, 0.14),
+    6px 12px 0 rgba(95, 180, 255, 0.08),
+    8px 16px 28px rgba(0, 0, 0, 0.55);
+}
+
 /* ── Tick feed: rolling per-tick price strip with GSAP tween reveals */
 .tick-feed {
   display: flex;
