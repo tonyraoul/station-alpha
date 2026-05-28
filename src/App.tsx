@@ -1,5 +1,5 @@
-import { ChartHarnessPage } from "./demos";
+import { LandingPage } from "./landing";
 
 export function App(): JSX.Element {
-  return <ChartHarnessPage />;
+  return <LandingPage />;
 }

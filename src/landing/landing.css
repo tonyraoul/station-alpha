@@ -1,0 +1,245 @@
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap");
+
+:root {
+  --ink: #f3f7ff;
+  --ink-muted: #adc7e8;
+  --line: rgba(151, 210, 252, 0.25);
+  --card: rgba(8, 17, 32, 0.72);
+  --accent: #36f9da;
+  --accent-2: #5fb4ff;
+  --danger: #ff5f7b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #05080f;
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.landing {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  padding: 56px clamp(22px, 4vw, 54px) 90px;
+  background:
+    radial-gradient(900px 500px at 12% 0%, rgba(34, 75, 255, 0.27), transparent 68%),
+    radial-gradient(1000px 580px at 90% 10%, rgba(39, 255, 200, 0.16), transparent 70%),
+    linear-gradient(165deg, #04060d 0%, #060d1a 47%, #061224 100%);
+}
+
+.orb {
+  position: fixed;
+  border-radius: 999px;
+  pointer-events: none;
+  filter: blur(4px);
+  opacity: 0.7;
+  z-index: 0;
+}
+
+.orb-a {
+  width: 260px;
+  height: 260px;
+  left: -80px;
+  top: 16%;
+  background: radial-gradient(circle at 35% 30%, rgba(95, 180, 255, 0.95), rgba(95, 180, 255, 0));
+}
+
+.orb-b {
+  width: 280px;
+  height: 280px;
+  right: -110px;
+  top: 44%;
+  background: radial-gradient(circle at 40% 35%, rgba(54, 249, 218, 0.8), rgba(54, 249, 218, 0));
+}
+
+.hero,
+.hero-glass,
+.docs-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-kicker {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--ink-muted);
+}
+
+.hero-title {
+  margin: 16px 0 0;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2.5rem, 8vw, 6.1rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  max-width: 11ch;
+}
+
+.hero-title-line {
+  display: block;
+}
+
+.hero-subtitle {
+  margin: 20px 0 0;
+  max-width: 68ch;
+  color: var(--ink-muted);
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  line-height: 1.5;
+}
+
+.hero-glass {
+  margin-top: 36px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: linear-gradient(125deg, rgba(16, 30, 56, 0.82), rgba(9, 15, 30, 0.7));
+  box-shadow: 0 22px 70px rgba(0, 7, 18, 0.64);
+  backdrop-filter: blur(10px);
+}
+
+.chart-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.chart-meta > div {
+  border-radius: 12px;
+  border: 1px solid rgba(151, 210, 252, 0.2);
+  background: rgba(7, 14, 28, 0.72);
+  padding: 10px 12px;
+}
+
+.meta-label {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.meta-value {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.meta-value.up {
+  color: var(--accent);
+}
+
+.meta-value.down {
+  color: var(--danger);
+}
+
+.chart-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(151, 210, 252, 0.25);
+}
+
+.landing-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.docs-grid {
+  margin-top: 34px;
+  display: grid;
+  gap: 22px;
+}
+
+.doc-card {
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  padding: clamp(18px, 4vw, 34px);
+  box-shadow: 0 24px 60px rgba(3, 8, 20, 0.52);
+}
+
+.doc-card h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  font-family: "Syne", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.doc-subtitle {
+  margin: 8px 0 22px;
+  color: var(--ink-muted);
+  font-size: 0.98rem;
+}
+
+.markdown-surface {
+  color: #dce9ff;
+  line-height: 1.65;
+}
+
+.markdown-surface h1,
+.markdown-surface h2,
+.markdown-surface h3,
+.markdown-surface h4 {
+  font-family: "Syne", sans-serif;
+  margin-top: 1.3em;
+  margin-bottom: 0.4em;
+}
+
+.markdown-surface code {
+  background: rgba(99, 140, 220, 0.15);
+  border: 1px solid rgba(154, 182, 236, 0.2);
+  border-radius: 6px;
+  padding: 0.08em 0.35em;
+}
+
+.markdown-surface pre {
+  overflow: auto;
+  background: rgba(7, 11, 22, 0.85);
+  border: 1px solid rgba(151, 210, 252, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.mermaid-surface {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(151, 210, 252, 0.18);
+  background: rgba(7, 11, 22, 0.82);
+  padding: 10px;
+}
+
+.mermaid-surface svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 460px;
+}
+
+.mermaid-loading {
+  border-radius: 12px;
+  border: 1px dashed rgba(151, 210, 252, 0.25);
+  padding: 14px;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.mermaid-fallback {
+  margin: 0;
+}
+
+@media (max-width: 920px) {
+  .landing {
+    padding-top: 34px;
+  }
+
+  .chart-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
