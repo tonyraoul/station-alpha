@@ -4,6 +4,12 @@ import type { HighPerformanceChartHandle } from "../chart/chartTypes";
 import { useFakeTickerStream } from "./useFakeTickerStream";
 import "./harness.css";
 
+const CHART_BACKGROUND: [number, number, number, number] = [
+  0.04, 0.07, 0.12, 1,
+];
+const CHART_GRID: [number, number, number, number] = [0.15, 0.24, 0.37, 1];
+const CHART_LINE: [number, number, number, number] = [0.29, 0.94, 1, 1];
+
 export function ChartHarnessPage(): JSX.Element {
   const chartRef = useRef<HighPerformanceChartHandle | null>(null);
 
@@ -127,9 +133,9 @@ export function ChartHarnessPage(): JSX.Element {
             height={460}
             className="fake-ticker-canvas"
             maxPoints={ticker.maxSamples}
-            backgroundColor={[0.04, 0.07, 0.12, 1]}
-            gridColor={[0.15, 0.24, 0.37, 1]}
-            lineColor={[0.29, 0.94, 1, 1]}
+            backgroundColor={CHART_BACKGROUND}
+            gridColor={CHART_GRID}
+            lineColor={CHART_LINE}
           />
         </div>
 

@@ -72,6 +72,20 @@ export function useFakeTickerStream({
     const prngRef = useRef<() => number>(() => 0.5);
     const driftRef = useRef(0);
     const tickRef = useRef(0);
+    const emitBufferARef = useRef<Float32Array>(new Float32Array(1));
+    const emitBufferBRef = useRef<Float32Array>(new Float32Array(1));
+    const emitFlipRef = useRef(false);
+
+    function nextEmitBuffer(pointsToEmit: number): Float32Array {
+        const targetRef = emitFlipRef.current ? emitBufferARef : emitBufferBRef;
+        emitFlipRef.current = !emitFlipRef.current;
+
+        if (targetRef.current.length < pointsToEmit) {
+            targetRef.current = new Float32Array(pointsToEmit);
+        }
+
+        return targetRef.current;
+    }
 
     useEffect(() => {
         prngRef.current = createPrng(initialSeed);
@@ -88,7 +102,7 @@ export function useFakeTickerStream({
 
         const id = window.setInterval(() => {
             const pointsToEmit = Math.max(1, Math.floor(speed));
-            const emitted = new Float32Array(pointsToEmit);
+            const emitted = nextEmitBuffer(pointsToEmit);
 
             let beforeLast = latestRef.current;
             for (let i = 0; i < pointsToEmit; i += 1) {
@@ -111,7 +125,11 @@ export function useFakeTickerStream({
                 emitted[i] = rounded;
             }
 
-            setRecentPrices(emitted);
+            if (emitted.length === pointsToEmit) {
+                setRecentPrices(emitted);
+            } else {
+                setRecentPrices(emitted.subarray(0, pointsToEmit));
+            }
             setLatest(latestRef.current);
             setDelta(Math.round((latestRef.current - beforeLast) * 10000) / 10000);
             setSampleCount((prev) => Math.min(maxSamples, prev + pointsToEmit));
