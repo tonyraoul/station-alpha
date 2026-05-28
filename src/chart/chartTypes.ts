@@ -3,8 +3,14 @@ export type PricePoint = {
     price: number;
 };
 
+export type HighPerformanceChartHandle = {
+    addSamples: (samples: PricePoint[]) => void;
+    replaceAll: (samples: PricePoint[]) => void;
+    reset: () => void;
+};
+
 export type HighPerformanceChartProps = {
-    samples: PricePoint[];
+    initialSamples?: PricePoint[];
     width?: number;
     height?: number;
     className?: string;

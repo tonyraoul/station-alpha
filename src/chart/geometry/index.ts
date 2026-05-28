@@ -1,2 +1,2 @@
 export * from "./makeGridVertices";
-export * from "./makeLineVertices";
+export * from "./makeLineInput";

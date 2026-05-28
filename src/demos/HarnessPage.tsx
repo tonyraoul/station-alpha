@@ -1,8 +1,12 @@
+import { useEffect, useRef } from "react";
 import { HighPerformanceChart } from "../chart/HighPerformanceChart";
+import type { HighPerformanceChartHandle } from "../chart/chartTypes";
 import { useFakeTickerStream } from "./useFakeTickerStream";
 import "./harness.css";
 
 export function ChartHarnessPage(): JSX.Element {
+  const chartRef = useRef<HighPerformanceChartHandle | null>(null);
+
   const ticker = useFakeTickerStream({
     symbol: "FKT-USD",
     updatesPerSecond: 20,
@@ -13,6 +17,18 @@ export function ChartHarnessPage(): JSX.Element {
   const trendText =
     ticker.delta >= 0 ? `+${ticker.delta.toFixed(4)}` : ticker.delta.toFixed(4);
   const trendClass = ticker.delta >= 0 ? "trend-up" : "trend-down";
+
+  useEffect(() => {
+    chartRef.current?.reset();
+  }, [ticker.resetVersion]);
+
+  useEffect(() => {
+    if (ticker.recentSamples.length === 0) {
+      return;
+    }
+
+    chartRef.current?.addSamples(ticker.recentSamples);
+  }, [ticker.recentSamples]);
 
   return (
     <div className="fake-ticker-page">
@@ -63,26 +79,54 @@ export function ChartHarnessPage(): JSX.Element {
           </label>
 
           <label className="fake-ticker-control">
+            Updates/s
+            <input
+              type="range"
+              min={4}
+              max={120}
+              step={1}
+              value={ticker.updatesPerSecond}
+              onChange={(e) =>
+                ticker.setUpdatesPerSecond(Number(e.target.value))
+              }
+            />
+            {ticker.updatesPerSecond.toFixed(0)}
+          </label>
+
+          <label className="fake-ticker-control">
             Speed
             <input
               type="range"
-              min={0.4}
-              max={2.5}
-              step={0.1}
+              min={1}
+              max={80000}
+              step={1}
               value={ticker.speed}
               onChange={(e) => ticker.setSpeed(Number(e.target.value))}
             />
-            {ticker.speed.toFixed(1)}x
+            {ticker.speed.toFixed(0)} pt/tick
+          </label>
+
+          <label className="fake-ticker-control">
+            Max samples
+            <input
+              type="range"
+              min={300}
+              max={60 * 60 * 24 * 30 * 12}
+              step={100}
+              value={ticker.maxSamples}
+              onChange={(e) => ticker.setMaxSamples(Number(e.target.value))}
+            />
+            {ticker.maxSamples.toFixed(0)}
           </label>
         </div>
 
         <div className="fake-ticker-chart-wrap">
           <HighPerformanceChart
-            samples={ticker.samples}
+            ref={chartRef}
             width={1060}
             height={460}
             className="fake-ticker-canvas"
-            maxPoints={2500}
+            maxPoints={ticker.maxSamples}
             backgroundColor={[0.04, 0.07, 0.12, 1]}
             gridColor={[0.15, 0.24, 0.37, 1]}
             lineColor={[0.29, 0.94, 1, 1]}
@@ -91,7 +135,7 @@ export function ChartHarnessPage(): JSX.Element {
 
         <footer className="fake-ticker-footer">
           <div className="fake-ticker-panel">
-            Samples: {ticker.samples.length}
+            Samples: {ticker.samples.length} / {ticker.maxSamples}
           </div>
           <div className="fake-ticker-panel">
             Engine: React + TypeScript + WebGL
