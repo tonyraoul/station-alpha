@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ReactMarkdown from "react-markdown";
@@ -994,6 +995,7 @@ const TickFeedPanel = memo(function TickFeedPanel({
 
 const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
   const chartRef = useRef<HighPerformanceChartHandle | null>(null);
+  const navigate = useNavigate();
   const ticker = useFakeTickerStream({
     symbol: "BTCUSD",
     updatesPerSecond: 24,
@@ -1044,7 +1046,11 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
         </div>
       </div>
       <TickFeedPanel latest={ticker.latest} />
-      <div className="chart-wrap">
+      <div
+        className="chart-wrap chart-wrap--clickable"
+        onClick={() => navigate("/harness")}
+        title="Open chart harness"
+      >
         <HighPerformanceChart
           ref={chartRef}
           width={1200}
@@ -1055,6 +1061,20 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
           gridColor={CHART_GRID}
           lineColor={CHART_LINE}
         />
+        <div className="chart-cta-overlay" aria-hidden="true">
+          <span className="chart-cta-hint">Open interactive harness →</span>
+        </div>
+      </div>
+      <div className="chart-cta-bar">
+        <button
+          className="chart-cta-btn"
+          onClick={() => navigate("/harness")}
+        >
+          Open chart harness
+        </button>
+        <p className="chart-cta-desc">
+          Controls, volatility sliders, and live tick feed — full interactive demo.
+        </p>
       </div>
     </section>
   );
