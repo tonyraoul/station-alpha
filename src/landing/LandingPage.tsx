@@ -493,7 +493,11 @@ export function LandingPage(): JSX.Element {
         y: "110%",
         duration: 0.9,
         ease: "power4.out",
-        scrollTrigger: { trigger: ".chart-arch-section", start: "top 80%", once: true },
+        scrollTrigger: {
+          trigger: ".chart-arch-section",
+          start: "top 80%",
+          once: true,
+        },
       });
       gsap.from(".chart-arch-sub", {
         autoAlpha: 0,
@@ -501,7 +505,11 @@ export function LandingPage(): JSX.Element {
         duration: 0.6,
         delay: 0.3,
         ease: "power3.out",
-        scrollTrigger: { trigger: ".chart-arch-section", start: "top 80%", once: true },
+        scrollTrigger: {
+          trigger: ".chart-arch-section",
+          start: "top 80%",
+          once: true,
+        },
       });
       gsap.utils.toArray<HTMLElement>(".chart-arch-pillar").forEach((el, i) => {
         // card: slam in from below with slight 3-D tilt
@@ -513,7 +521,11 @@ export function LandingPage(): JSX.Element {
           duration: 0.75,
           delay: i * 0.1,
           ease: "back.out(1.4)",
-          scrollTrigger: { trigger: ".chart-arch-grid", start: "top 82%", once: true },
+          scrollTrigger: {
+            trigger: ".chart-arch-grid",
+            start: "top 82%",
+            once: true,
+          },
         });
         // glyph: scale-punch after card arrives
         gsap.from(el.querySelector(".cap-glyph"), {
@@ -522,7 +534,11 @@ export function LandingPage(): JSX.Element {
           duration: 0.5,
           delay: i * 0.1 + 0.3,
           ease: "back.out(2.5)",
-          scrollTrigger: { trigger: ".chart-arch-grid", start: "top 82%", once: true },
+          scrollTrigger: {
+            trigger: ".chart-arch-grid",
+            start: "top 82%",
+            once: true,
+          },
         });
       });
 
@@ -544,11 +560,7 @@ export function LandingPage(): JSX.Element {
           { autoAlpha: 0, x: -14, duration: 0.12 },
           0,
         )
-        .from(
-          "#q1-title .clip-wrap > h2",
-          { y: "110%", duration: 0.22 },
-          0.08,
-        )
+        .from("#q1-title .clip-wrap > h2", { y: "110%", duration: 0.22 }, 0.08)
         .from(
           "#q1-title .qt-subtitle",
           { autoAlpha: 0, y: 12, duration: 0.12 },
@@ -593,11 +605,7 @@ export function LandingPage(): JSX.Element {
           { autoAlpha: 0, x: 14, duration: 0.12 },
           0,
         )
-        .from(
-          "#q2-title .clip-wrap > h2",
-          { x: "110%", duration: 0.22 },
-          0.08,
-        )
+        .from("#q2-title .clip-wrap > h2", { x: "110%", duration: 0.22 }, 0.08)
         .from(
           "#q2-title .qt-subtitle",
           { autoAlpha: 0, y: -12, duration: 0.12 },
@@ -812,21 +820,27 @@ const HeroSection = memo(function HeroSection(): JSX.Element {
       <div className="hero-stats" aria-hidden="true">
         <div className="hero-stat">
           <div className="hero-stat-value">
-            <span className="hero-stat-number" data-target="60">0</span>
+            <span className="hero-stat-number" data-target="60">
+              0
+            </span>
             <span className="hero-stat-unit">fps</span>
           </div>
           <span className="hero-stat-label">Stream rate</span>
         </div>
         <div className="hero-stat">
           <div className="hero-stat-value">
-            <span className="hero-stat-number" data-target="3600">0</span>
+            <span className="hero-stat-number" data-target="3600">
+              0
+            </span>
             <span className="hero-stat-unit">ticks</span>
           </div>
           <span className="hero-stat-label">Rolling window</span>
         </div>
         <div className="hero-stat">
           <div className="hero-stat-value">
-            <span className="hero-stat-number" data-target="16">0</span>
+            <span className="hero-stat-number" data-target="16">
+              0
+            </span>
             <span className="hero-stat-unit">ms</span>
           </div>
           <span className="hero-stat-label">Frame budget</span>
@@ -902,17 +916,24 @@ const CHART_PILLARS: ChartPillar[] = [
 
 const ChartArchSection = memo(function ChartArchSection(): JSX.Element {
   return (
-    <section className="chart-arch-section sequence-section" aria-labelledby="chart-arch-title">
+    <section
+      className="chart-arch-section sequence-section"
+      aria-labelledby="chart-arch-title"
+    >
       <div className="chart-arch-header">
         <div className="clip-wrap">
-          <h2 id="chart-arch-title" className="chart-arch-title">How the chart is built</h2>
+          <h2 id="chart-arch-title" className="chart-arch-title">
+            How the chart is built
+          </h2>
         </div>
         <p className="chart-arch-sub">No clones. No SVG. Append-only.</p>
       </div>
       <div className="chart-arch-grid">
         {CHART_PILLARS.map((p, i) => (
           <article key={i} className="chart-arch-pillar">
-            <span className="cap-glyph" aria-hidden="true">{p.glyph}</span>
+            <span className="cap-glyph" aria-hidden="true">
+              {p.glyph}
+            </span>
             <h3 className="cap-label">{p.label}</h3>
             <p className="cap-body">{p.body}</p>
           </article>
@@ -961,9 +982,7 @@ const TickFeedPanel = memo(function TickFeedPanel({
     gsap.fromTo(
       row,
       {
-        background: isUp
-          ? "rgba(54,249,218,0.2)"
-          : "rgba(255,95,123,0.2)",
+        background: isUp ? "rgba(54,249,218,0.2)" : "rgba(255,95,123,0.2)",
       },
       { background: "transparent", duration: 1, ease: "power2.out" },
     );
@@ -980,9 +999,7 @@ const TickFeedPanel = memo(function TickFeedPanel({
             style={{ opacity: Math.max(0.18, 1 - i * 0.13) }}
           >
             <span className="tick-price">{t.price.toFixed(2)}</span>
-            <span className="tick-arrow">
-              {t.tickDelta >= 0 ? "▲" : "▼"}
-            </span>
+            <span className="tick-arrow">{t.tickDelta >= 0 ? "▲" : "▼"}</span>
             <span className="tick-delta">
               {Math.abs(t.tickDelta).toFixed(2)}
             </span>
@@ -1066,14 +1083,12 @@ const LiveChartSection = memo(function LiveChartSection(): JSX.Element {
         </div>
       </div>
       <div className="chart-cta-bar">
-        <button
-          className="chart-cta-btn"
-          onClick={() => navigate("/harness")}
-        >
+        <button className="chart-cta-btn" onClick={() => navigate("/harness")}>
           Open chart harness
         </button>
         <p className="chart-cta-desc">
-          Controls, volatility sliders, and live tick feed — full interactive demo.
+          Controls, volatility sliders, and live tick feed — full interactive
+          demo.
         </p>
       </div>
     </section>
