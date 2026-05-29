@@ -38,7 +38,7 @@ jobs:
         run: npm run build
 
       - name: Add .nojekyll
-        run: touch dist/.nojekyll
+        run: mkdir -p dist && touch dist/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
